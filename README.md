@@ -1,5 +1,6 @@
 #MyModbus
 Program do obslugi modbusa
+
 ##Description
 
 Main program do osblugi Api dla modbasa rtu.
@@ -11,4 +12,5 @@ python modbus_master.py -h
 
 
 ##Note
+
 Cos tam
