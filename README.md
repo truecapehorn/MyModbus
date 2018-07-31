@@ -1,7 +1,6 @@
-# MyModbus
-
-Description
-===========
+#MyModbus
+Program do obslugi modbusa
+##Description
 
 Main program do osblugi Api dla modbasa rtu.
 Musi sie znajdowac w tym samym folderze co modbus_rtu_v3
@@ -11,7 +10,5 @@ python modbus_master.py -h
 !!!!Wersja zmiany adresu dla czujnikow appr!!!!
 
 
-Note
-====
-
-COS TAM
+##Note
+Cos tam
