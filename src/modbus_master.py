@@ -2,9 +2,6 @@ from modbus_rtu_v3 import Api
 import argparse
 import textwrap
 
-
-
-
 parser = argparse.ArgumentParser(
     prog='PROG',
     formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -18,7 +15,6 @@ parser = argparse.ArgumentParser(
             !!!!Wersja zmiany adresu dla czujnikow appr!!!!
         --------------------------------------------------------
         '''))
-
 
 parser.add_argument('-c', action='store', dest='port',
                     help='Port')
@@ -73,17 +69,18 @@ add_change_app = results.app_add_change  # sprawdzenie co chemy zrobic ( odczyta
 add_change_fif = results.fif_add_change  # sprawdzenie co chemy zrobic ( odczytanie rej, czy zmiana adresu )
 speed_change_app = results.app_speed_change  # sprawdzenie co chemy zrobic ( odczytanie rej, czy zmiana adresu )
 
-
-
-units=[]
-for i in results.unit[0].split(','):
-    units.append(int(i))
 speed = results.speed
-port=results.port
-
-
+port = results.port
 
 if add_change_app == False and add_change_fif == False and speed_change_app == False:
+
+    units = []
+    for i in results.unit[0].split(','):
+        units.append(int(i))
+    reg_start = results.reg_start
+    reg_lenght = results.reg_lenght
+    data_type = results.data_type
+    qty = results.qty
 
     print(
         "\n     Data:\nspeed = {},\nunit = {},\nreg_start= {},\nreg_lenght= {},\nreg_type= {},\nqty= {},".format(
@@ -93,35 +90,26 @@ if add_change_app == False and add_change_fif == False and speed_change_app == F
             results.data_type,
             results.qty))
 
-
-    unit = units
-    reg_start = results.reg_start
-    reg_lenght = results.reg_lenght
-    data_type = results.data_type
-    qty = results.qty
     rtu = Api(speed=speed, port=port)
     if data_type == 'ui16':
-        readholding = rtu.read_holding(unit, reg_start, reg_lenght, data_type, qty)
+        readholding = rtu.read_holding(units, reg_start, reg_lenght, data_type, qty)
     elif data_type == 'float':
-        readinput = rtu.read_input(unit, reg_start, reg_lenght, data_type, qty)
+        #readinput = rtu.read_input(units, reg_start, reg_lenght, data_type, qty)
+        readholding = rtu.read_holding(units, reg_start, reg_lenght, data_type, qty)
 
 elif add_change_app == True or add_change_fif == True or speed_change_app == True:
 
     valNew = int(results.valNew)
+    valOld = int(results.valOld)
     if add_change_app == True:
         rtu = Api(speed=speed, port=port)
-        add = rtu.appar_add_change(units[0],units[0], valNew, 'ui16')
+        add = rtu.appar_add_change(valOld, valOld, valNew, 'ui16')
     elif add_change_fif == True:
-        rtu = Api(speed=speed,port=port)
-        add = rtu.fif_add_change(units[0],units[0], valNew, 'ui16')
+        rtu = Api(speed=speed, port=port)
+        add = rtu.fif_add_change(units[0], units[0], valNew, 'ui16')
     elif speed_change_app == True:
         valOld = int(results.valOld)
-        rtu = Api(speed=valOld,port=port)
+        rtu = Api(speed=valOld, port=port)
         add = rtu.appar_speed_change(units[0], valOld, valNew, 'ui16')
-        rtu=Api(speed=valNew,port=port)
-        check=rtu.read_holding(units,0,30,'ui16',5)
-
-
-if __name__ == '__main__':
-    parser.parse_args('-h')
-
+        rtu = Api(speed=valNew, port=port)
+        check = rtu.read_holding(units, 0, 30, 'ui16', 5)

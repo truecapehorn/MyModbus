@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from pymodbus.client.sync import ModbusSerialClient as ModbusClient
@@ -44,31 +44,37 @@ class Api():
         client = self.connection()
         connection = client.connect()
         print("Odczyt adresow holding reg od {} do {} dla urzadzen {} predkosc {}: {}".format(reg_start,
-                                                                                   reg_start + reg_lenght,
+                                                                                   reg_start + reg_lenght-1,
                                                                                    unit,self.speed,
                                                                                    connection))
         sesion = 1
         while connection and sesion <= qty:
-            print("Sesja nr: ", sesion)
             time.sleep(0.3)
             for i in unit:
                 try:
                     client.connect()
-                    massure = client.read_holding_registers(reg_start, reg_lenght+1, unit=i)
+                    massure = client.read_holding_registers(reg_start, reg_lenght, unit=i)
                     if data_type == 'ui16':
                         data = massure.registers[0:]
-                        print('Rejestry {} dla adresu {}'.format(data_type, i))
-                        for c ,v in enumerate(data,0):
-                            print('Adres: {} - {}'.format(c,v))
+                        print('Sesja nr: {}; Rejestry {} dla adresu {}'.format(sesion,data_type, i))
+                        nr=reg_start
+                        for v in data:
+                            print('Adres: {} - {}'.format(nr,v))
+                            nr+=1
                     elif data_type == 'float':
                         massure.registers[0::2], massure.registers[1::2] = massure.registers[1::2], massure.registers[
                                                                                                     0::2]
                         data_arr = np.array([massure.registers[0:]], dtype=np.int16)
                         data_as_float = data_arr.view(dtype=np.float32)
                         data = data_as_float
-                        print('Rejestry {} dla adresu {}'.format(data_type, i))
-                        for c ,v in enumerate(data,0):
-                            print('Adres: {} - {}'.format(c,v))
+                        print('Sesja nr: {}; Rejestry {} dla adresu {}'.format(sesion,data_type, i))
+                        print(data)
+                        nr=reg_start
+                        for v in data[0]:
+                            print('Adres: {} - {}'.format(nr,v))
+                            nr+=2
+
+                    print('\n')
                     client.close()
                     time.sleep(0.3)
                 except AttributeError:
@@ -81,7 +87,7 @@ class Api():
             client.close()
 
             sesion += 1
-            print("\n")
+            #print("\n")
         if len(data) != 0:
             return data
         else:
@@ -100,7 +106,6 @@ class Api():
                                                                                    connection))
         sesion = 1
         while connection and sesion <= qty:
-            print("Sesja nr: ", sesion)
             time.sleep(0.3)
             massure = []
             for i in unit:
@@ -110,7 +115,7 @@ class Api():
                     data = massure.registers[0:]
 
                     if data_type == 'ui16':
-                        print('Rejestry {} dla adresu {}'.format(data_type, i))
+                        print('Sesja nr: {}; Rejestry {} dla adresu {}'.format(sesion,data_type, i))
                         for c ,v in enumerate(data,0):
                             print(c,v)
                     elif data_type == 'float':
@@ -119,7 +124,7 @@ class Api():
                         data_arr = np.array([massure.registers[0:]], dtype=np.int16)
                         data_as_float = data_arr.view(dtype=np.float32)
                         data = data_as_float
-                        print('Rejestry {} dla adresu {}'.format(data_type, i))
+                        print('Sesja nr: {}; Rejestry {} dla adresu {}'.format(sesion,data_type, i))
                         for c ,v in enumerate(data,0):
                             print('Adres: {} - {}'.format(c,v))
                     client.close()
@@ -154,7 +159,7 @@ class Api():
     def appar_add_change(self,unitAdd ,valOld, valNew, data_type):
         unit = []
         unit.append(unitAdd)
-        reg = self.read_holding(unit, 0, 30, data_type, 5)
+        reg = self.read_holding(unit, 0, 29, data_type, 3)
         print('Stary adres = ', reg[28])
         if reg[28] == valOld:
             testVar = input("Czy chcesz zmienic adres z {} na {} ( t/n).".format(valOld, valNew))
@@ -165,7 +170,7 @@ class Api():
                 unit = []
                 print('Przeprowadzono zmiane adresu z {} na {}'.format(valOld, valNew))
                 unit.append(valNew)
-                self.read_holding(unit, 0, 30, data_type, 5)
+                self.read_holding(unit, 0, 30, data_type, 3)
         else:
             print('Error: Adres inny niz ', valOld)
         print('\n')
@@ -173,7 +178,7 @@ class Api():
     def fif_add_change(self,unitAdd ,valOld, valNew, data_type):
         unit = []
         unit.append(unitAdd)
-        reg = self.read_holding(unit, 256, 4, data_type, 5)
+        reg = self.read_holding(unit, 256, 4, data_type, 3)
         print('Stary adres = ', reg[0])
         if reg[0] == valOld:
             testVar = input("Czy chcesz zmienic adres z {} na {} ( t/n).".format(valOld, valNew))
@@ -184,7 +189,7 @@ class Api():
                 unit = []
                 print('Przeprowadzono zmiane adresu z {} na {}'.format(valOld, valNew))
                 unit.append(valNew)
-                self.read_holding(unit, 256, 4, data_type, 5)
+                self.read_holding(unit, 256, 4, data_type, 3)
         else:
             print('Error: Adres inny niz ', valOld)
         print('\n')
