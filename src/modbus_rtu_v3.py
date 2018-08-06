@@ -50,16 +50,20 @@ class Api():
         sesion = 1
         while connection and sesion <= qty:
             time.sleep(0.3)
+            units_value={}
+            localtime = time.asctime(time.localtime(time.time()))
+            print(localtime)
+            print('Sesja nr: {}; Rejestry {} dla adresu {}'.format(sesion, data_type, unit))
             for i in unit:
                 try:
                     client.connect()
                     massure = client.read_holding_registers(reg_start, reg_lenght, unit=i)
+                    add_value = {}
                     if data_type == 'ui16':
                         data = massure.registers[0:]
-                        print('Sesja nr: {}; Rejestry {} dla adresu {}'.format(sesion,data_type, i))
                         nr=reg_start
                         for v in data:
-                            print('Adres: {} - {}'.format(nr,v))
+                            add_value[nr]=v
                             nr+=1
                     elif data_type == 'float':
                         massure.registers[0::2], massure.registers[1::2] = massure.registers[1::2], massure.registers[
@@ -67,27 +71,27 @@ class Api():
                         data_arr = np.array([massure.registers[0:]], dtype=np.int16)
                         data_as_float = data_arr.view(dtype=np.float32)
                         data = data_as_float
-                        print('Sesja nr: {}; Rejestry {} dla adresu {}'.format(sesion,data_type, i))
-                        print(data)
                         nr=reg_start
                         for v in data[0]:
-                            print('Adres: {} - {}'.format(nr,v))
+                            add_value[nr]=v
                             nr+=2
-
-                    print('\n')
                     client.close()
+                    units_value[i]=add_value
                     time.sleep(0.3)
                 except AttributeError:
                     print('Połaczenie z adresem {} nie udane'.format(i))
                     continue
                 except KeyboardInterrupt:
-                    print('Przerwanie przez urzytkownika')
+                    print('Przerwanie przez uzytkownika')
                     client.close()
                     break
             client.close()
-
+            for k,v in units_value.items():
+                print("Urzadzenie",k," : ",v)
             sesion += 1
-            #print("\n")
+            print(160*"=")
+            print('\n')
+            time.sleep(10)
         if len(data) != 0:
             return data
         else:
