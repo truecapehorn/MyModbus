@@ -216,6 +216,25 @@ class Api():
         print('\n')
 
 
+
+class ReadHolding(Api):
+
+    def __init__(self,unit, reg_start, reg_lenght, data_type, qty=5):
+        self.unit=unit
+        self.reg_start=reg_start
+        self.reg_lenght=reg_lenght
+        self.data_type=data_type
+        self.qty=qty
+
+        connection=self.connection()
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     rtu = Api(port='com2', speed=2400)
     fifek = Api(speed=2400)
