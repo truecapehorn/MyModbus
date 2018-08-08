@@ -22,10 +22,6 @@ class Master():
         self.bytesize = bytesize
         self.timeout = timeout
 
-    def connection(self):
-        client = ModbusClient(method=self.method, port=self.port, baudrate=self.speed, stopbits=self.stopbits,
-                              parity=self.parity, bytesize=self.bytesize, timeout=self.timeout)
-
         print(
             "   Connection:\nmethod = {},\nport = {},\nbaudrate = {},\nstopbits = {},\nparity = {},\nbytesize = {},\ntimeout = {},\n".format(
                 self.method,
@@ -36,34 +32,43 @@ class Master():
                 self.bytesize,
                 self.timeout))
 
-        time.sleep(1)
+    def connection(self):
+        client = ModbusClient(method=self.method, port=self.port, baudrate=self.speed, stopbits=self.stopbits,
+                              parity=self.parity, bytesize=self.bytesize, timeout=self.timeout)
+
         return client
 
 
-class Registers():
+    def reg_holding(self,client, parm):
+        massure = client.read_holding_registers(parm[1], parm[2], unit=parm[0])
+        return massure.registers[0:]
 
-    def __init__(self, client):
-        self.client = client
+    def reg_input(self,client, parm):
 
-    def reg_holding(self, unit, reg_start, reg_lenght):
-        massure = self.client.read_holding_registers(reg_start, reg_lenght, unit=unit)
-        return massure
+        massure = client.read_input_registers(parm[1], parm[2], unit=parm[0])
+        return massure.registers[0:]
 
-    def reg_input(self, unit, reg_start, reg_lenght):
-        massure = self.client.read_input_registers(reg_start, reg_lenght, unit=unit)
-        return massure
-
-    def read_holding(self):
+    def read_register(self, unit, reg_start, reg_lenght, reg_type):
+        client=self.connection()
+        parm = [unit, reg_start, reg_lenght]
+        try:
+            client.connect()
+            if reg_type == 'holding':
+                pomiar = self.reg_holding(client,parm)
+            elif reg_type == "input":
+                pomiar = self.reg_input(client,parm)
+            client.close()
+            return print(pomiar)
+        except AttributeError:
+            print('Połaczenie z adresem {} nie udane'.format(parm[0]))
+            client.close()
+        except KeyboardInterrupt:
+            print('Przerwanie przez urzytkownika')
+            client.close()
 
 if __name__ == '__main__':
     apar = Master(port='com2', speed=2400)
-    client = apar.connection()
-    print(client)
-    regs = Registers(client)
-    if client.connect():
-        print("dups")
-        print(regs)
-        masure=regs.read_holding(2,0,2)
-        print(masure.registers[0:])
 
-
+    while True:
+        apar.read_register(2,0,10,'holding')
+        time.sleep(2)
