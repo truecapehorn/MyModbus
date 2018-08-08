@@ -9,7 +9,6 @@ from collections import OrderedDict
 import time
 import numpy as np
 
-
 class Master():
     ''' Obsłoga Modbus RTU'''
 
@@ -21,6 +20,8 @@ class Master():
         self.parity = parity
         self.bytesize = bytesize
         self.timeout = timeout
+
+
 
         print(
             "   Connection:\nmethod = {},\nport = {},\nbaudrate = {},\nstopbits = {},\nparity = {},\nbytesize = {},\ntimeout = {},\n".format(
@@ -38,27 +39,44 @@ class Master():
 
         return client
 
-
-    def reg_holding(self,client, parm):
+    def reg_holding(self, client, parm):
         massure = client.read_holding_registers(parm[1], parm[2], unit=parm[0])
         return massure.registers[0:]
 
-    def reg_input(self,client, parm):
+    def reg_input(self, client, parm):
 
         massure = client.read_input_registers(parm[1], parm[2], unit=parm[0])
         return massure.registers[0:]
 
-    def read_register(self, unit, reg_start, reg_lenght, reg_type):
-        client=self.connection()
+    def choise_data(self,data,data_type):
+        if data_type != 'int':
+            data[0::2], data[1::2] = data[1::2], data[0::2]
+            data_arr = np.array([data], dtype=np.int16)
+            data_as_float = data_arr.view(dtype=np.float32)
+            data = data_as_float
+        else:
+            pass
+        return data
+
+    def display_data(self,data):
+        print(data)
+
+
+
+
+    def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int'):
+        client = self.connection()
         parm = [unit, reg_start, reg_lenght]
         try:
             client.connect()
             if reg_type == 'holding':
-                pomiar = self.reg_holding(client,parm)
+                data = self.reg_holding(client, parm)
             elif reg_type == "input":
-                pomiar = self.reg_input(client,parm)
+                data = self.reg_input(client, parm)
             client.close()
-            return print(pomiar)
+            measure=self.choise_data(data,data_type)
+            self.display_data(measure)
+            return print('pomiar OK!!')
         except AttributeError:
             print('Połaczenie z adresem {} nie udane'.format(parm[0]))
             client.close()
@@ -66,9 +84,10 @@ class Master():
             print('Przerwanie przez urzytkownika')
             client.close()
 
+
 if __name__ == '__main__':
     apar = Master(port='com2', speed=2400)
 
     while True:
-        apar.read_register(2,0,10,'holding')
+        apar.read_register(2, 0, 10)
         time.sleep(2)
