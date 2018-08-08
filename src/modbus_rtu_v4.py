@@ -39,11 +39,12 @@ class Master():
         """Funkcja glowna odczytu rejestrow, wywolujaca inne podfunkcje"""
         # TODO: Nie wiem czy nazwa jest prawidlowa. Niby czyta rejestry ale tak naprawde obsluguje odczyt
         # TODO: Jeszcze bardziej rozdzielic zadania funkcji na mniejsze funkcje
-        client = self.client
 
+        client = self.client
         parm = [unit, reg_start, reg_lenght]
         try:
             client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
+            time.sleep(0.2)
             if reg_type == 'holding':
                 data = self.reg_holding(client, parm)
             elif reg_type == "input":
