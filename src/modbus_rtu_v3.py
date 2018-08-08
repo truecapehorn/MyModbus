@@ -44,13 +44,13 @@ class Api():
         client = self.connection()
         connection = client.connect()
         print("Odczyt adresow holding reg od {} do {} dla urzadzen {} predkosc {}: {}".format(reg_start,
-                                                                                   reg_start + reg_lenght-1,
-                                                                                   unit,self.speed,
-                                                                                   connection))
+                                                                                              reg_start + reg_lenght - 1,
+                                                                                              unit, self.speed,
+                                                                                              connection))
         sesion = 1
         while connection and sesion <= qty:
             time.sleep(0.3)
-            units_value={}
+            units_value = {}
             localtime = time.asctime(time.localtime(time.time()))
             print(localtime)
             print('Sesja nr: {}; Rejestry {} dla adresu {}'.format(sesion, data_type, unit))
@@ -61,22 +61,22 @@ class Api():
                     add_value = {}
                     if data_type == 'ui16':
                         data = massure.registers[0:]
-                        nr=reg_start
+                        nr = reg_start
                         for v in data:
-                            add_value[nr]=v
-                            nr+=1
+                            add_value[nr] = v
+                            nr += 1
                     elif data_type == 'float':
                         massure.registers[0::2], massure.registers[1::2] = massure.registers[1::2], massure.registers[
                                                                                                     0::2]
                         data_arr = np.array([massure.registers[0:]], dtype=np.int16)
                         data_as_float = data_arr.view(dtype=np.float32)
                         data = data_as_float
-                        nr=reg_start
+                        nr = reg_start
                         for v in data[0]:
-                            add_value[nr]=v
-                            nr+=2
+                            add_value[nr] = v
+                            nr += 2
                     client.close()
-                    units_value[i]=add_value
+                    units_value[i] = add_value
                     time.sleep(0.3)
                 except AttributeError:
                     print('Połaczenie z adresem {} nie udane'.format(i))
@@ -86,10 +86,10 @@ class Api():
                     client.close()
                     break
             client.close()
-            for k,v in units_value.items():
-                print("Urzadzenie",k," : ",v)
+            for k, v in units_value.items():
+                print("Urzadzenie", k, " : ", v)
             sesion += 1
-            print(160*"=")
+            print(160 * "=")
             print('\n')
             time.sleep(10)
         if len(data) != 0:
@@ -105,9 +105,9 @@ class Api():
         if data_type == 'float':
             reg_lenght += 2
         print("Odczyt adresow holding reg od {} do {} dla urzadzen {} predkosc {}: {}".format(reg_start,
-                                                                                   reg_start + reg_lenght,
-                                                                                   unit,self.speed,
-                                                                                   connection))
+                                                                                              reg_start + reg_lenght,
+                                                                                              unit, self.speed,
+                                                                                              connection))
         sesion = 1
         while connection and sesion <= qty:
             time.sleep(0.3)
@@ -119,18 +119,18 @@ class Api():
                     data = massure.registers[0:]
 
                     if data_type == 'ui16':
-                        print('Sesja nr: {}; Rejestry {} dla adresu {}'.format(sesion,data_type, i))
-                        for c ,v in enumerate(data,0):
-                            print(c,v)
+                        print('Sesja nr: {}; Rejestry {} dla adresu {}'.format(sesion, data_type, i))
+                        for c, v in enumerate(data, 0):
+                            print(c, v)
                     elif data_type == 'float':
                         massure.registers[0::2], massure.registers[1::2] = massure.registers[1::2], massure.registers[
                                                                                                     0::2]
                         data_arr = np.array([massure.registers[0:]], dtype=np.int16)
                         data_as_float = data_arr.view(dtype=np.float32)
                         data = data_as_float
-                        print('Sesja nr: {}; Rejestry {} dla adresu {}'.format(sesion,data_type, i))
-                        for c ,v in enumerate(data,0):
-                            print('Adres: {} - {}'.format(c,v))
+                        print('Sesja nr: {}; Rejestry {} dla adresu {}'.format(sesion, data_type, i))
+                        for c, v in enumerate(data, 0):
+                            print('Adres: {} - {}'.format(c, v))
                     client.close()
                 except AttributeError:
                     print('Połaczenie z adresem {} nie udane'.format(i))
@@ -160,7 +160,7 @@ class Api():
         client.close()
         return print('Nowa wartosc zapisana')
 
-    def appar_add_change(self,unitAdd ,valOld, valNew, data_type):
+    def appar_add_change(self, unitAdd, valOld, valNew, data_type):
         unit = []
         unit.append(unitAdd)
         reg = self.read_holding(unit, 0, 29, data_type, 3)
@@ -179,7 +179,7 @@ class Api():
             print('Error: Adres inny niz ', valOld)
         print('\n')
 
-    def fif_add_change(self,unitAdd ,valOld, valNew, data_type):
+    def fif_add_change(self, unitAdd, valOld, valNew, data_type):
         unit = []
         unit.append(unitAdd)
         reg = self.read_holding(unit, 256, 4, data_type, 3)
@@ -198,7 +198,7 @@ class Api():
             print('Error: Adres inny niz ', valOld)
         print('\n')
 
-    def appar_speed_change(self, unitAdd,valOld, valNew, data_type):
+    def appar_speed_change(self, unitAdd, valOld, valNew, data_type):
         unit = []
         unit.append(unitAdd)
         reg = self.read_holding(unit, 0, 30, data_type, 5)
@@ -216,15 +216,6 @@ class Api():
         print('\n')
 
 
-
-
-
-
-
-
-
-
-
 if __name__ == '__main__':
     rtu = Api(port='com2', speed=2400)
     fifek = Api(speed=2400)
@@ -236,6 +227,6 @@ if __name__ == '__main__':
 
     # readinput1 = rtu.read_input(uniti, 0, 10, 'ui16', 5)
     # readinput2 = fifek.read_input(fif, 0, 70, 'float', 5)
-    #writereg = rtu.appar_add_change(1,1, 11, 'ui16')
-    #fifchenge = rtu.fif_add_change(11,11, 23, 'ui16')
-    #speedchenge=rtu.appar_speed_change(1,9600,2400,'ui16')
+    # writereg = rtu.appar_add_change(1,1, 11, 'ui16')
+    # fifchenge = rtu.fif_add_change(11,11, 23, 'ui16')
+    # speedchenge=rtu.appar_speed_change(1,9600,2400,'ui16')
