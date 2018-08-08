@@ -33,6 +33,7 @@ class Master():
                 self.parity,
                 self.bytesize,
                 self.timeout,))
+        
 
     def reg_holding(self, client, parm):
         massure = client.read_holding_registers(parm[1], parm[2], unit=parm[0])
