@@ -79,6 +79,7 @@ class Master():
 
 if __name__ == '__main__':
     apar = Master(port='com2', speed=2400)
+    fif=Master(port='com2',speed=9600)
     while apar.connection:
         apar.read_register(2, 0, 10)
         time.sleep(2)
