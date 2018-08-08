@@ -60,7 +60,6 @@ class Master():
         return massure.registers[0:]
 
     def reg_input(self, client, parm):
-
         massure = client.read_input_registers(parm[1], parm[2], unit=parm[0])
         return massure.registers[0:]
 
@@ -82,11 +81,12 @@ class Master():
 if __name__ == '__main__':
     apar = Master(port='com2', speed=2400)
     fif=Master(port='com2',speed=9600)
-
     connections=[apar,fif]
-    while apar.connection:
-        apar.read_register(2, 0, 10)
-        time.sleep(2)
     for nr,conn in enumerate(connections):
         if conn.connection == False:
             print("Polaczenie: ",nr,"False!!!!!!!!!!")
+
+    while apar.connection:
+        apar.read_register(2, 0, 10)
+        time.sleep(2)
+
