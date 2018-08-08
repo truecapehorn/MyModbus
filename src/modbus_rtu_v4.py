@@ -35,6 +35,26 @@ class Master():
                 self.timeout,))
         
 
+    def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int'):
+        client = self.client
+        parm = [unit, reg_start, reg_lenght]
+        try:
+            client.connect()
+            if reg_type == 'holding':
+                data = self.reg_holding(client, parm)
+            elif reg_type == "input":
+                data = self.reg_input(client, parm)
+            client.close()
+            measure = self.choise_data_type(data, data_type)
+            self.display_data(measure)
+            return print('pomiar OK!!')
+        except AttributeError:
+            print('Połaczenie z adresem {} nie udane'.format(parm[0]))
+            client.close()
+        except KeyboardInterrupt:
+            print('Przerwanie przez urzytkownika')
+            client.close()
+
     def reg_holding(self, client, parm):
         massure = client.read_holding_registers(parm[1], parm[2], unit=parm[0])
         return massure.registers[0:]
@@ -57,25 +77,7 @@ class Master():
     def display_data(self, data):
         print(data)
 
-    def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int'):
-        client = self.client
-        parm = [unit, reg_start, reg_lenght]
-        try:
-            client.connect()
-            if reg_type == 'holding':
-                data = self.reg_holding(client, parm)
-            elif reg_type == "input":
-                data = self.reg_input(client, parm)
-            client.close()
-            measure = self.choise_data_type(data, data_type)
-            self.display_data(measure)
-            return print('pomiar OK!!')
-        except AttributeError:
-            print('Połaczenie z adresem {} nie udane'.format(parm[0]))
-            client.close()
-        except KeyboardInterrupt:
-            print('Przerwanie przez urzytkownika')
-            client.close()
+
 
 if __name__ == '__main__':
     apar = Master(port='com2', speed=2400)
