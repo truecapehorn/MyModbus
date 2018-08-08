@@ -24,7 +24,8 @@ class Master():
         self.client = ModbusClient(method=self.method, port=self.port, baudrate=self.speed, stopbits=self.stopbits,
                                    parity=self.parity, bytesize=self.bytesize, timeout=self.timeout)
         self.connection = self.client.connect()
-        print("Connection: {}\nmethod = {},\nport = {},\nbaudrate = {},\nstopbits = {},\nparity = {},\nbytesize = {},\ntimeout = {},\n".format(
+        print(
+            "Connection: {}\nmethod = {},\nport = {},\nbaudrate = {},\nstopbits = {},\nparity = {},\nbytesize = {},\ntimeout = {},\n".format(
                 self.connection,
                 self.method,
                 self.port,
@@ -32,14 +33,17 @@ class Master():
                 self.stopbits,
                 self.parity,
                 self.bytesize,
-                self.timeout,))
-        
+                self.timeout, ))
 
     def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int'):
+        """Funkcja glowna odczytu rejestrow, wywolujaca inne podfunkcje"""
+        # TODO: Nie wiem czy nazwa jest prawidlowa. Niby czyta rejestry ale tak naprawde obsluguje odczyt
+        # TODO: Jeszcze bardziej rozdzielic zadania funkcji na mniejsze funkcje
         client = self.client
+
         parm = [unit, reg_start, reg_lenght]
         try:
-            client.connect()
+            client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
             if reg_type == 'holding':
                 data = self.reg_holding(client, parm)
             elif reg_type == "input":
@@ -64,6 +68,7 @@ class Master():
         return massure.registers[0:]
 
     def choise_data_type(self, data, data_type):
+        """Jezli data bedzie typu long to trzeba zrobic rekompozycje rejestrow 16bit"""
         if data_type != 'int':
             data[0::2], data[1::2] = data[1::2], data[0::2]
             data_arr = np.array([data], dtype=np.int16)
@@ -77,16 +82,17 @@ class Master():
         print(data)
 
 
+# TODO: DODAC ZAPIS REJSTROW
+# TODO: DODAC POMNIEJSZE WYSPECIALIZOWANE MODULY DO ZMIANY ADRESU PREDKOSCI I MOZE JAKIS INNNE
 
 if __name__ == '__main__':
     apar = Master(port='com2', speed=2400)
-    fif=Master(port='com2',speed=9600)
-    connections=[apar,fif]
-    for nr,conn in enumerate(connections):
+    fif = Master(port='com2', speed=9600)
+    connections = [apar, fif]
+    for nr, conn in enumerate(connections):
         if conn.connection == False:
-            print("Polaczenie: ",nr,"False!!!!!!!!!!")
+            print("Polaczenie: ", nr, "False!!!!!!!!!!")
 
     while apar.connection:
         apar.read_register(2, 0, 10)
         time.sleep(2)
-
