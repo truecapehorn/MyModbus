@@ -82,7 +82,11 @@ class Master():
 if __name__ == '__main__':
     apar = Master(port='com2', speed=2400)
     fif=Master(port='com2',speed=9600)
+
+    connections=[apar,fif]
     while apar.connection:
         apar.read_register(2, 0, 10)
         time.sleep(2)
-    if apar.connection==False:print("Brak polaczenia!!!!!!!!!!")
+    for nr,conn in enumerate(connections):
+        if conn.connection == False:
+            print("Polaczenie: ",nr,"False!!!!!!!!!!")
