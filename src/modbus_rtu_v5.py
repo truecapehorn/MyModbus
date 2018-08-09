@@ -47,37 +47,26 @@ class Master():
         # TODO: Jeszcze bardziej rozdzielic zadania funkcji na mniejsze funkcje
 
         parm = [unit, reg_start, reg_lenght]
-        try:
-            self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
-            time.sleep(0.2)
-            if reg_type == 'holding':
-                data = self.read_holding( parm)
-            elif reg_type == "input":
-                data = self.read_input( parm)
-            self.client.close()
-            measure = self.choise_data_type(data, data_type)
-            self.display_data(measure,unit,reg_start)
-            return measure
-        except AttributeError:
-            print('Połaczenie z adresem {} nie udane'.format(parm[0]))
-            self.client.close()
-        except KeyboardInterrupt:
-            print('Przerwanie przez urzytkownika')
-            self.client.close()
-
+        self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
+        time.sleep(0.2)
+        if reg_type == 'holding':
+            data = self.read_holding( parm)
+        elif reg_type == "input":
+            data = self.read_input( parm)
+        self.client.close()
+        measure = self.choise_data_type(data, data_type)
+        self.display_data(measure,unit,reg_start)
+        return measure
     def write_register(self, reg_add,val,unit):
-        try:
-            parm=[unit,reg_add,val]
-            self.write_single_register(parm)
-            self.client.close()
-            return print('Nowa wartosc zapisana')
-        except AttributeError:
-            print('Połaczenie z adresem {} nie udane'.format(unit))
-            self.client.close()
-
+        self.client.connect()
+        parm=[unit,reg_add,val]
+        self.write_single_register(parm)
+        self.client.close()
+        return print('Nowa wartosc zapisana')
 
     def read_holding(self, parm):
         massure = self.client.read_holding_registers(parm[1], parm[2], unit=parm[0])
+        self.assercion(massure)
         return massure.registers[0:]
 
     def read_input(self, parm):
@@ -87,8 +76,16 @@ class Master():
     def write_single_register(self,parm):
         rq=self.client.write_register(parm[1], parm[2], unit=parm[0])
         rr= self.client.read_holding_registers(parm[1],1,unit=parm[0])
-        # assert (not rq.isError()) # test that we are not an error
-        # assert (rr.registers[0] == parm[2]) # test the expected value
+        self.assercion(rq)
+        assert (rr.registers[0] == parm[2]) # test the expected value
+
+    def assercion(self,cos):
+        # test that we are not an error
+        if not cos.isError():
+            print("NIr ma eroroyu")
+        else:
+            print(" jest error")
+
 
 
     def check_write(self,parm):
@@ -129,5 +126,5 @@ if __name__ == '__main__':
             apar.read_register(i, 0, 30)
             time.sleep(0.5)
         print(160*"=")
-        # apar.write_register(20,1,17)
+        apar.write_register(20,1,17)
         time.sleep(2)
