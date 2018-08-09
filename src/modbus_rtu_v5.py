@@ -40,33 +40,46 @@ class Master():
         # TODO: Nie wiem czy nazwa jest prawidlowa. Niby czyta rejestry ale tak naprawde obsluguje odczyt
         # TODO: Jeszcze bardziej rozdzielic zadania funkcji na mniejsze funkcje
 
-        client = self.client
         parm = [unit, reg_start, reg_lenght]
         try:
-            client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
+            self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
             time.sleep(0.2)
             if reg_type == 'holding':
-                data = self.reg_holding(client, parm)
+                data = self.read_holding(self.client, parm)
             elif reg_type == "input":
-                data = self.reg_input(client, parm)
-            client.close()
+                data = self.read_input(self.client, parm)
+            self.client.close()
             measure = self.choise_data_type(data, data_type)
             self.display_data(measure,unit,reg_start)
             return True
         except AttributeError:
             print('Połaczenie z adresem {} nie udane'.format(parm[0]))
-            client.close()
+            self.client.close()
         except KeyboardInterrupt:
             print('Przerwanie przez urzytkownika')
-            client.close()
+            self.client.close()
 
-    def reg_holding(self, client, parm):
+    def write_register(self, reg_add,val,unit):
+        try:
+            parm=[unit,reg_add,val]
+            self.write_single_register(self.client,parm)
+            self.client.close()
+            return print('Nowa wartosc zapisana')
+        except AttributeError:
+            print('Połaczenie z adresem {} nie udane'.format(unit))
+            self.client.close()
+
+
+    def read_holding(self, client, parm):
         massure = client.read_holding_registers(parm[1], parm[2], unit=parm[0])
         return massure.registers[0:]
 
-    def reg_input(self, client, parm):
+    def read_input(self, client, parm):
         massure = client.read_input_registers(parm[1], parm[2], unit=parm[0])
         return massure.registers[0:]
+
+    def write_single_register(self,client,parm):
+        client.write_register(parm[1], parm[2], unit=parm[0])
 
     def choise_data_type(self, data, data_type):
         """Jezli data bedzie typu long to trzeba zrobic rekompozycje rejestrow 16bit"""
@@ -98,10 +111,10 @@ if __name__ == '__main__':
             print("Polaczenie: ", nr, "False!!!!!!!!!!")
 
     while apar.connection:
-        units=[2,17,18,22,23,3]
+        units=[2,17,18,22,23]
         for i in units:
-            apar.read_register(i, 0, 2)
+            apar.read_register(i, 0, 30)
             time.sleep(0.5)
         print(160*"=")
-
+        # apar.write_register(20,1,17)
         time.sleep(2)
