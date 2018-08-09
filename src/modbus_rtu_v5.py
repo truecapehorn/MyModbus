@@ -8,6 +8,12 @@ from pymodbus.payload import BinaryPayloadBuilder
 from collections import OrderedDict
 import time
 import numpy as np
+import logging
+# logging.basicConfig()
+# log = logging.getLogger()
+# log.setLevel(logging.DEBUG)
+
+
 
 
 class Master():
@@ -45,13 +51,13 @@ class Master():
             self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
             time.sleep(0.2)
             if reg_type == 'holding':
-                data = self.read_holding(self.client, parm)
+                data = self.read_holding( parm)
             elif reg_type == "input":
-                data = self.read_input(self.client, parm)
+                data = self.read_input( parm)
             self.client.close()
             measure = self.choise_data_type(data, data_type)
             self.display_data(measure,unit,reg_start)
-            return True
+            return measure
         except AttributeError:
             print('Połaczenie z adresem {} nie udane'.format(parm[0]))
             self.client.close()
@@ -62,7 +68,7 @@ class Master():
     def write_register(self, reg_add,val,unit):
         try:
             parm=[unit,reg_add,val]
-            self.write_single_register(self.client,parm)
+            self.write_single_register(parm)
             self.client.close()
             return print('Nowa wartosc zapisana')
         except AttributeError:
@@ -70,16 +76,23 @@ class Master():
             self.client.close()
 
 
-    def read_holding(self, client, parm):
-        massure = client.read_holding_registers(parm[1], parm[2], unit=parm[0])
+    def read_holding(self, parm):
+        massure = self.client.read_holding_registers(parm[1], parm[2], unit=parm[0])
         return massure.registers[0:]
 
-    def read_input(self, client, parm):
-        massure = client.read_input_registers(parm[1], parm[2], unit=parm[0])
+    def read_input(self, parm):
+        massure = self.client.read_input_registers(parm[1], parm[2], unit=parm[0])
         return massure.registers[0:]
 
-    def write_single_register(self,client,parm):
-        client.write_register(parm[1], parm[2], unit=parm[0])
+    def write_single_register(self,parm):
+        rq=self.client.write_register(parm[1], parm[2], unit=parm[0])
+        rr= self.client.read_holding_registers(parm[1],1,unit=parm[0])
+        # assert (not rq.isError()) # test that we are not an error
+        # assert (rr.registers[0] == parm[2]) # test the expected value
+
+
+    def check_write(self,parm):
+        pass
 
     def choise_data_type(self, data, data_type):
         """Jezli data bedzie typu long to trzeba zrobic rekompozycje rejestrow 16bit"""
@@ -96,7 +109,7 @@ class Master():
         dic_val={}
         for nr,v in enumerate(data):
             dic_val[nr+reg_start]=v
-        print("Urzadzenie {} - {}".format(unit,dic_val))
+        print("Urzadzenie {} - {}".format(str(unit),dic_val))
 
 
 # TODO: DODAC ZAPIS REJSTROW
