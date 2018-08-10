@@ -58,10 +58,13 @@ class Master():
         self.display_data(measure,unit,reg_start)
         return measure
     def write_register(self, reg_add,val,unit):
-        self.client.connect()
+        #print(self.client.connect())
+        # self.client.connect()
+        # print(self.client.connect())
         parm=[unit,reg_add,val]
         self.write_single_register(parm)
         self.client.close()
+
         return print('Nowa wartosc zapisana')
 
     def read_holding(self, parm):
@@ -75,13 +78,14 @@ class Master():
 
     def write_single_register(self,parm):
         rq=self.client.write_register(parm[1], parm[2], unit=parm[0])
+        print(self.client._wait_for_data())
         rr= self.client.read_holding_registers(parm[1],1,unit=parm[0])
         self.assercion(rq)
         assert (rr.registers[0] == parm[2]) # test the expected value
 
-    def assercion(self,cos):
+    def assercion(self,operation):
         # test that we are not an error
-        if not cos.isError():
+        if not operation.isError():
             print("NIr ma eroroyu")
         else:
             print(" jest error")
@@ -114,17 +118,19 @@ class Master():
 
 if __name__ == '__main__':
     apar = Master(port='com2', speed=2400)
-    fif = Master(port='com2', speed=9600)
-    connections = [apar, fif]
-    for nr, conn in enumerate(connections):
-        if conn.connection == False:
-            print("Polaczenie: ", nr, "False!!!!!!!!!!")
-
+    # fif = Master(port='com2', speed=9600)
+    # connections = [apar]
+    # for nr, conn in enumerate(connections):
+    #     if conn.connection == False:
+    # #         print("Polaczenie: ", nr, "False!!!!!!!!!!")
+    print(apar.connection)
     while apar.connection:
-        units=[2,17,18,22,23]
+        units=[18,22]
         for i in units:
             apar.read_register(i, 0, 30)
             time.sleep(0.5)
         print(160*"=")
-        apar.write_register(20,1,17)
+
+
+        apar.write_register(20,1,22)
         time.sleep(2)
