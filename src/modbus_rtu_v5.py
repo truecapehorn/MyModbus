@@ -19,7 +19,7 @@ import logging
 class Master():
     ''' Obsłoga Modbus RTU'''
 
-    def __init__(self, method='rtu', port='com3', speed=9600, stopbits=1, parity='N', bytesize=8, timeout=1):
+    def __init__(self,speed,port, method='rtu',stopbits=1, parity='N', bytesize=8, timeout=1):
         self.method = method
         self.port = port
         self.speed = speed
@@ -126,18 +126,63 @@ class Master():
 # TODO: DODAC POMNIEJSZE WYSPECIALIZOWANE MODULY DO ZMIANY ADRESU PREDKOSCI I MOZE JAKIS INNNE
 
 if __name__ == '__main__':
-    apar = Master(port='com3', speed=2400)
+    # apar = Master(port='com3', speed=2400)
     # fif = Master(port='com2', speed=9600)
     # connections = [apar]
     # for nr, conn in enumerate(connections):
     #     if conn.connection == False:
     # #         print("Polaczenie: ", nr, "False!!!!!!!!!!")
-    print(apar.connection)
-    while apar.connection:
-        units=[17,18,23,22]
-        for i in units:
-            apar.read_register(i, 0, 30)
-            time.sleep(0.5)
+    # print(apar.connection)
+    # while apar.connection:
+    #     units=[17,18,23,22]
+    #     for i in units:
+    #         apar.read_register(i, 0, 30)
+    #         time.sleep(0.5)
+    #     print(160*"=")
+
+    # czesc o zmianie adresow
+
+    '''
+    115,2k  -   9
+    57,6k   -   8
+    38,4k   -   7
+    19,2k   -   6
+    14,4k   -   5
+    9,6k    -   4
+    4,8k    -   3
+    2,4k    -   2
+    1,2k    -   1
+    0,6k    -   0 
+    '''
+
+    apar = Master(port='com3',speed=9600)
+    if apar.connection==True:
+        print("Jest polaczenie")
+        unit=22
+        reg=apar.read_register(unit, 29, 1)
+        print(reg)
+        time.sleep(0.5)
         print(160*"=")
+        if reg[0]==4:
+            valOld=9600
+        elif reg[0] == 2:
+            valOld = 2400
+
+        valNew=2400
+        testVar = input("Czy chcesz zmienic adres z {} na {} ( t/n).".format(valOld, valNew))
+        if testVar!="t":
+            print("Wyjscie z programu")
+        else:
+            print("Zmiana adresu")
+
+
+
+
+
+
+
+
+
+
 
 

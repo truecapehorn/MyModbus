@@ -199,6 +199,7 @@ class Api():
         print('\n')
 
     def appar_speed_change(self, unitAdd, valOld, valNew, data_type):
+        # dla appara 29 adres w rejestrach
         unit = []
         unit.append(unitAdd)
         reg = self.read_holding(unit, 0, 30, data_type, 5)
