@@ -45,9 +45,19 @@ class Master():
                 self.timeout, ))
 
     def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int'):
+
+        '''
+
+        :param unit: adres urzadzenia
+        :param reg_start: rejestr poczatkowy
+        :param reg_lenght: dlugosc rejestru
+        :param reg_type: typ rejestru czy (holding lub input) def. holding
+        :param data_type: int czy float
+        :return: zwraca odzcytane rejestry
+        '''
+
+
         """Funkcja glowna odczytu rejestrow, wywolujaca inne podfunkcje"""
-        # TODO: Nie wiem czy nazwa jest prawidlowa. Niby czyta rejestry ale tak naprawde obsluguje odczyt
-        # TODO: Jeszcze bardziej rozdzielic zadania funkcji na mniejsze funkcje
 
         parm = [unit, reg_start, reg_lenght]
         self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
@@ -61,12 +71,25 @@ class Master():
         self.display_data(measure,unit,reg_start)
         return measure
     def write_register(self, reg_add,val,unit):
+        '''
+
+        :param reg_add: adres rejestru do zmiany
+        :param val: nowa wratosc rejstru
+        :param unit: adres urzadzenia w ktorej chcemy zmienic rejstr
+        :return: zwaraca zmiane rejstru
+        '''
         parm=[unit,reg_add,val]
         self.write_single_register(parm)
         self.client.close()
         return print('\tNowa wartosc zapisana')
 
     def read_holding(self, parm):
+        '''
+
+        :param parm: tablica z ( unit, reg_start, reg_lenght )
+        :return: laczy sie z clientem i odczytuje holding reg. Sprawdza czy sa blady w polaczeniu
+        Jezli sa to funckcja assertion zwraca blad polaczenia.
+        '''
         massure = self.client.read_holding_registers(parm[1], parm[2], unit=parm[0])
         #sprawdzenie czy nie ma errorow
         if self.assercion(massure,parm[0])==False:
@@ -76,14 +99,30 @@ class Master():
             return False
 
     def read_input(self, parm):
+        '''
+
+        :param parm: tablica z ( unit, reg_start, reg_lenght )
+        :return: laczy sie z clientem i odczytuje input reg. Sprawdza czy sa blady w polaczeniu
+        Jezli sa to funckcja assertion zwraca blad polaczenia.
+        '''
         massure = self.client.read_input_registers(parm[1], parm[2], unit=parm[0])
-        return massure.registers[0:]
+        if self.assercion(massure,parm[0])==False:
+
+            return massure.registers[0:]
+        else:
+            return False
 
     def write_single_register(self,parm):
         self.client.write_register(parm[1], parm[2], unit=parm[0])
 
 
     def assercion(self,operation,unit):
+        '''
+
+        :param operation: operacja do sprawdzenia bledu
+        :param unit: adres sprawdzanego urzadzenia
+        :return: zwraca blad lub nie robuc nic
+        '''
         # test that we are not an error
         if not operation.isError():
             pass
@@ -124,39 +163,31 @@ class Master():
 
 
 if __name__ == '__main__':
-    # apar = Master(port='com3', speed=2400)
-    # fif = Master(port='com2', speed=9600)
-    # connections = [apar]
-    # for nr, conn in enumerate(connections):
-    #     if conn.connection == False:
-    # #         print("Polaczenie: ", nr, "False!!!!!!!!!!")
-    # print(apar.connection)
-    # while apar.connection:
-    #     units=[17,18,23,22]
-    #     for i in units:
-    #         apar.read_register(i, 0, 30)
-    #         time.sleep(0.5)
-    #     print(160*"=")
 
+    def unitCheck(start, stop, speed):
+        '''
 
-
-    def unitCheck(start,stop,speed):
-        units=[]
-        apar=Master(port='com3', speed=speed)
+        :param start: adres urzadzenia poczatek
+        :param stop: aders urzadzenia koniec
+        :param speed: predkosc polaczenia
+        :return: zwraca tablice z adresami urzadzen z którymi nawiazal połączenie
+        '''
+        units = []
+        apar = Master(port='com3', speed=speed)
         while apar.connection == True:
-            for unit in range(start,stop+1):
+            for unit in range(start, stop + 1):
                 conn = apar.read_register(unit, 29, 1)
                 print(conn)
-                if conn!=False:
+                if conn != False:
                     units.append(unit)
-                if unit==stop:
+                if unit == stop:
                     break
             break
-        print("ODCZYTANE URZADZENIA: ",units)
+        print("ODCZYTANE URZADZENIA: ", units)
         return units
 
-    def speed_change(units,speedOld,speedNew):
 
+    def speed_change(units, speedOld, speedNew):
         '''
 
         :param units: tablica adresow urzadzen
@@ -164,7 +195,6 @@ if __name__ == '__main__':
         :param speedNew: nowa predkosc np. 9600
         :return: zmienia adres 29 rejestru apar
         '''
-
 
         '''
         Tabela predkosci i odpowiadajcym mu wartosi rejestru 29. 
@@ -183,7 +213,7 @@ if __name__ == '__main__':
         speedTab = {0: 600, 1: 1200, 2: 2400, 3: 4800, 4: 9600, 5: 14400, 6: 19200, 7: 38400, 8: 57600,
                     9: 115200}  # tabela z predkosciami
 
-        def checkConnection(apar,unit):
+        def checkConnection(apar, unit):
 
             '''
 
@@ -210,7 +240,7 @@ if __name__ == '__main__':
                 else:
                     pass
 
-        def apparSpeedChange(speedOld,speedNew):
+        def apparSpeedChange(speedOld, speedNew):
 
             '''
 
@@ -226,7 +256,8 @@ if __name__ == '__main__':
             else:
                 print("Zmiana adresu na ", speedNew)
                 # przypisanie nowej wartosci rejestru
-                regVal=speedTable(speedTab) # przeskanowanie tabali i zwrocenie wartosci rej. odpowiadajacej predkosci
+                regVal = speedTable(
+                    speedTab)  # przeskanowanie tabali i zwrocenie wartosci rej. odpowiadajacej predkosci
                 print("Nowa Wartosc ", regVal)
                 time.sleep(0.5)
                 apar1.write_register(29, regVal, unit)
@@ -237,21 +268,19 @@ if __name__ == '__main__':
             apar1 = Master(port='com3', speed=speedOld)
             if apar1.connection == True:
                 print(160 * "=")
-                reg=checkConnection(apar1,unit)
+                reg = checkConnection(apar1, unit)
                 if reg != False:
-                    change=apparSpeedChange(speedOld,speedNew)
-                    if change!=False:
+                    change = apparSpeedChange(speedOld, speedNew)
+                    if change != False:
                         print("Sprawdzenie połaczenia:")
                         apar2 = Master(port='com3', speed=speedNew)
                         if apar2.connection == True:
-                            checkConnection(apar2,unit)
+                            checkConnection(apar2, unit)
                             time.sleep(1)
 
 
-
-
-    units=unitCheck(17,23,2400)
-    speed_change(units,2400,9600)
+    units = unitCheck(17, 23, 2400)
+    speed_change(units, 2400, 2400)
 
 
 
