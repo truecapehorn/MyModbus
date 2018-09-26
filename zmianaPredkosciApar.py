@@ -5,6 +5,13 @@ import time
 
 
 def unitCheck(start, stop, speed):
+    '''
+
+    :param start: adres urzadzenia poczatek
+    :param stop: aders urzadzenia koniec
+    :param speed: predkosc polaczenia
+    :return: zwraca tablice z adresami urzadzen z którymi nawiazal połączenie
+    '''
     units = []
     apar = Master(port='com3', speed=speed)
     while apar.connection == True:
