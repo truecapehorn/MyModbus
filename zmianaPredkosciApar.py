@@ -1,4 +1,4 @@
-from modbus_rtu_v5 import Master
+from src.modbus_rtu_v5 import Master
 import time
 
 
