@@ -71,6 +71,7 @@ speed_change_app = results.app_speed_change  # sprawdzenie co chemy zrobic ( odc
 
 speed = results.speed
 port = results.port
+unit=results.unit
 
 if add_change_app == False and add_change_fif == False and speed_change_app == False:
 
@@ -108,8 +109,22 @@ elif add_change_app == True or add_change_fif == True or speed_change_app == Tru
         rtu = Api(speed=speed, port=port)
         add = rtu.fif_add_change(units[0], units[0], valNew, 'ui16')
     elif speed_change_app == True:
+        units = []
+        '''
+        115,2k        9
+        57,6k          8
+        38,4k          7
+        19,2k          6
+        14,4k          5
+        9,6k            4
+        4,8k            3
+        2,4k            2
+        1,2k            1
+        0,6k            0 
+        '''
+
         valOld = int(results.valOld)
         rtu = Api(speed=valOld, port=port)
-        add = rtu.appar_speed_change(units[0], valOld, valNew, 'ui16')
+        add = rtu.appar_speed_change(unit, valOld, valNew, 'ui16')
         rtu = Api(speed=valNew, port=port)
-        check = rtu.read_holding(units, 0, 30, 'ui16', 5)
+        check = rtu.read_holding(unit, 0, 30, 'ui16', 5)

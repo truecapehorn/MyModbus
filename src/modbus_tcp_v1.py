@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from pymodbus.client.sync import ModbusSerialClient as ModbusClient
+from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
 from pymodbus.payload import BinaryPayloadBuilder
@@ -19,27 +19,16 @@ import logging
 class Master():
     ''' Obsłoga Modbus RTU'''
 
-    def __init__(self, method='rtu', port='com3', speed=9600, stopbits=1, parity='N', bytesize=8, timeout=1):
-        self.method = method
+    def __init__(self, host,port):
+        self.host = host
         self.port = port
-        self.speed = speed
-        self.stopbits = stopbits
-        self.parity = parity
-        self.bytesize = bytesize
-        self.timeout = timeout
-        self.client = ModbusClient(method=self.method, port=self.port, baudrate=self.speed, stopbits=self.stopbits,
-                                   parity=self.parity, bytesize=self.bytesize, timeout=self.timeout)
+        self.client = ModbusClient(host=self.host,port=self.port,timeout=3)
         self.connection = self.client.connect()
         print(
-            "Connection: {}\nmethod = {},\nport = {},\nbaudrate = {},\nstopbits = {},\nparity = {},\nbytesize = {},\ntimeout = {},\n".format(
+            "Connection: {}\nhost = {},\nport = {}".format(
                 self.connection,
-                self.method,
-                self.port,
-                self.speed,
-                self.stopbits,
-                self.parity,
-                self.bytesize,
-                self.timeout, ))
+                self.host,
+                self.port, ))
 
     def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int'):
         """Funkcja glowna odczytu rejestrow, wywolujaca inne podfunkcje"""
@@ -48,7 +37,7 @@ class Master():
 
         parm = [unit, reg_start, reg_lenght]
         self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
-        time.sleep(0.2)
+        time.sleep(0.0)
         if reg_type == 'holding':
             data = self.read_holding( parm)
         elif reg_type == "input":
@@ -68,13 +57,16 @@ class Master():
         return print('Nowa wartosc zapisana')
 
     def read_holding(self, parm):
-        massure = self.client.read_holding_registers(parm[1], parm[2], unit=parm[0])
-        #sprawdzenie czy nie ma errorow
-        if self.assercion(massure,parm[0])==False:
-
+        try:
+            massure = self.client.read_holding_registers(parm[1], parm[2], unit=parm[0])
+            #self.assercion(massure)
+            print(massure)
             return massure.registers[0:]
-        else:
-            return False
+        except AttributeError:
+            print('modbus error')
+            return ['NoN']
+
+
 
     def read_input(self, parm):
         massure = self.client.read_input_registers(parm[1], parm[2], unit=parm[0])
@@ -87,13 +79,12 @@ class Master():
         self.assercion(rq)
         assert (rr.registers[0] == parm[2]) # test the expected value
 
-    def assercion(self,operation,unit):
+    def assercion(self,operation):
         # test that we are not an error
         if not operation.isError():
-            pass
+            print("Nie ma erroru")
         else:
-            print("Bład polaczenia z adresem ",unit)
-        return operation.isError()
+            print(" Jest error")
 
 
 
@@ -113,31 +104,21 @@ class Master():
 
     def display_data(self, data,unit,reg_start):
         dic_val={}
-        if data!=False:
-            for nr,v in enumerate(data):
-                dic_val[nr+reg_start]=v
-            print("Urzadzenie {} - {}".format(str(unit),dic_val))
-        else:
-            pass
-
+        for nr,v in enumerate(data):
+            dic_val[nr+reg_start]=v
+        print("Urzadzenie {} - {}".format(str(unit),dic_val))
 
 
 # TODO: DODAC ZAPIS REJSTROW
 # TODO: DODAC POMNIEJSZE WYSPECIALIZOWANE MODULY DO ZMIANY ADRESU PREDKOSCI I MOZE JAKIS INNNE
 
 if __name__ == '__main__':
-    apar = Master(port='com3', speed=2400)
-    # fif = Master(port='com2', speed=9600)
-    # connections = [apar]
-    # for nr, conn in enumerate(connections):
-    #     if conn.connection == False:
-    # #         print("Polaczenie: ", nr, "False!!!!!!!!!!")
+    apar = Master(host='192.168.10.11', port=503)
     print(apar.connection)
     while apar.connection:
-        units=[17,18,23,22]
+        units=list(range(1,33))
+        print(units)
         for i in units:
-            apar.read_register(i, 0, 30)
-            time.sleep(0.5)
+            apar.read_register(i, 0, 4)
+            time.sleep(0)
         print(160*"=")
-
-
