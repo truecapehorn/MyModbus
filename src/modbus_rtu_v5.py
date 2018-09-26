@@ -81,11 +81,11 @@ class Master():
         return massure.registers[0:]
 
     def write_single_register(self,parm):
-        rq=self.client.write_register(parm[1], parm[2], unit=parm[0])
-        print(self.client._wait_for_data())
-        rr= self.client.read_holding_registers(parm[1],1,unit=parm[0])
-        self.assercion(rq)
-        assert (rr.registers[0] == parm[2]) # test the expected value
+        self.client.write_register(parm[1], parm[2], unit=parm[0])
+        # print(self.client._wait_for_data())
+        # rr= self.client.read_holding_registers(parm[1],1,unit=parm[0])
+        # self.assercion(rq)
+        # assert (rr.registers[0] == parm[2]) # test the expected value
 
     def assercion(self,operation,unit):
         # test that we are not an error
@@ -155,7 +155,7 @@ if __name__ == '__main__':
     0,6k    -   0 
     '''
 
-    apar = Master(port='com3',speed=9600)
+    apar = Master(port='com3',speed=2400)
     if apar.connection==True:
         print("Jest polaczenie")
         unit=22
@@ -174,6 +174,7 @@ if __name__ == '__main__':
             print("Wyjscie z programu")
         else:
             print("Zmiana adresu")
+            apar.write_register(29,2,22)
 
 
 
