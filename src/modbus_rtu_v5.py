@@ -30,6 +30,9 @@ class Master():
         self.client = ModbusClient(method=self.method, port=self.port, baudrate=self.speed, stopbits=self.stopbits,
                                    parity=self.parity, bytesize=self.bytesize, timeout=self.timeout)
         self.connection = self.client.connect()
+
+
+    def masterDoc(self):
         print(
             "Connection: {}\nmethod = {},\nport = {},\nbaudrate = {},\nstopbits = {},\nparity = {},\nbytesize = {},\ntimeout = {},\n".format(
                 self.connection,
@@ -140,43 +143,75 @@ if __name__ == '__main__':
     #         time.sleep(0.5)
     #     print(160*"=")
 
-    # czesc o zmianie adresow
-
-    '''
-    115,2k  -   9
-    57,6k   -   8
-    38,4k   -   7
-    19,2k   -   6
-    14,4k   -   5
-    9,6k    -   4
-    4,8k    -   3
-    2,4k    -   2
-    1,2k    -   1
-    0,6k    -   0 
-    '''
-
-    apar = Master(port='com3',speed=2400)
-    if apar.connection==True:
-        print("Jest polaczenie")
-        unit=22
-        reg=apar.read_register(unit, 29, 1)
-        print(reg)
-        time.sleep(0.5)
-        print(160*"=")
-        if reg[0]==4:
-            valOld=9600
-        elif reg[0] == 2:
-            valOld = 2400
-
-        valNew=2400
-        testVar = input("Czy chcesz zmienic adres z {} na {} ( t/n).".format(valOld, valNew))
-        if testVar!="t":
-            print("Wyjscie z programu")
-        else:
-            print("Zmiana adresu")
-            apar.write_register(29,2,22)
 
 
+
+
+    def speed_change(units,speedOld,speedNew):
+        # czesc o zmianie adresow
+
+        '''
+        115,2k  -   9
+        57,6k   -   8
+        38,4k   -   7
+        19,2k   -   6
+        14,4k   -   5
+        9,6k    -   4
+        4,8k    -   3
+        2,4k    -   2
+        1,2k    -   1
+        0,6k    -   0
+        '''
+        speedTab={ 0:600,1:1200,2:2400,3:4800,4:9600,5:14400,6:19200,7:38400,8:57600,9:115200}
+        for unit in units:
+            apar1 = Master(port='com3', speed=speedOld)
+            if apar1.connection == True:
+                print(30*"=")
+                print("\nOdczytanie rejestrow z unit nr:",unit)
+                reg = apar1.read_register(unit, 29, 1)
+                time.sleep(0.5)
+                print(160 * "=")
+                if reg != False:
+                    testVar = input("Czy chcesz zmienic adres z {} na {} ( t/n).".format(speedTab[reg[0]],speedNew))
+                    if testVar != "t":
+                        print("Wyjscie z programu")
+                    else:
+                        print("Zmiana adresu na " ,speedNew)
+                        # przypisanie nowej awrtosci rejestru
+                        for k,v in speedTab.items():
+                            if v==speedNew:
+                                regVal=k
+                                print("{} = {}".format(v,k))
+                            else:
+                                pass
+                        print("Nowa Wartosc ",regVal)
+                        time.sleep(0.5)
+                        apar1.write_register(29, regVal, unit)
+                        time.sleep(0.5)
+                        print("Sprawdzenie połaczenia")
+                        apar2 = Master(port='com3', speed=speedNew)
+                        reg2 = apar2.read_register(unit, 29, 1)
+                        time.sleep(1)
+
+
+    def unitCheck(start,stop,speed):
+        units=[]
+        apar=Master(port='com3', speed=speed)
+        while apar.connection == True:
+            for unit in range(start,stop+1):
+                conn = apar.read_register(unit, 29, 1)
+                print(conn)
+                if conn!=False:
+                    units.append(unit)
+                if unit==stop:
+                    break
+            break
+        print(units)
+        return units
+
+
+    units=unitCheck(15,25,2400)
+    speed_change(units,2400,2400)
 
 
 
