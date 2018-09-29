@@ -58,7 +58,7 @@ def speed_change(units, speedOld, speedNew, port='com3'):
 
         :param apar: obejekt z polaczeniem modbus
         :param unit: adres urzadzenia
-        :return: zwraca wartosc rejetrow lub wartosc False
+        :return: Drukuje zadane wartosci rejestrow lub wartosc False
         '''
         print("Odczytanie rejestrow z unit nr:", unit)
         connection = apar.read_register(unit, 29, 1)
@@ -69,7 +69,7 @@ def speed_change(units, speedOld, speedNew, port='com3'):
 
         '''
         :param speedTab: slownik z wartosciami rejetru i odpowiadajacymi im predkosciami
-        :return: wartosc rejestru
+        :return: wartosc rejestru odpowiadajcej zadenj wartosci predkosci
         '''
         for k, v in speedTab.items():
             if v == speedNew:
@@ -85,7 +85,7 @@ def speed_change(units, speedOld, speedNew, port='com3'):
 
         :param speedOld: stara wartosc predkosci
         :param speedNew: nowa wartosc predkosci
-        :return: zwraca False kiedy urzytkownik nie zdecyduje zmieniac predkosci
+        :return: zmienia wartsc 29 rejestru o zadna predkosc.Zwraca False kiedy urzytkownik nie zdecyduje zmieniac predkosci
         '''
 
         testVar = input("\t!!! Czy chcesz zmienic adres z {} na {} ( t/n).".format(speedOld, speedNew))
