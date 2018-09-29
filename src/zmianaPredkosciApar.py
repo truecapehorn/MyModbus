@@ -2,9 +2,7 @@ from src.modbus_rtu_v5 import Master
 import time
 
 
-
-
-def unitCheck(start, stop, speed,port='com3'):
+def unitCheck(start, stop, speed, port='com3'):
     '''
 
     :param start: adres urzadzenia poczatek
@@ -28,7 +26,7 @@ def unitCheck(start, stop, speed,port='com3'):
     return units
 
 
-def speed_change(units, speedOld, speedNew,port='com3'):
+def speed_change(units, speedOld, speedNew, port='com3'):
     '''
 
     :param units: tablica adresow urzadzen
@@ -119,7 +117,6 @@ def speed_change(units, speedOld, speedNew,port='com3'):
                         time.sleep(1)
 
 
-if __name__=="main":
-
+if __name__ == "main":
     units = unitCheck(17, 23, 2400)
     speed_change(units, 2400, 2400)

@@ -37,7 +37,7 @@ parser.add_argument('-stop', action='store', dest='reg_stop', type=int,
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 
 actions = vars(parser.parse_args())  # pobranie wartosci akcji z namespace parasera w postaci slownika
-print("Dane wejsciowe: ",actions)
+print("Dane wejsciowe: ", actions)
 
 units = unitCheck(actions["reg_start"], actions["reg_stop"], actions["speed_old"], actions["port"])
 speed_change(units, actions["speed_old"], actions["speed_new"])
