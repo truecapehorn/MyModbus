@@ -4,7 +4,7 @@ import time
 
 
 
-def unitCheck(start, stop, speed):
+def unitCheck(start, stop, speed,port='com3'):
     '''
 
     :param start: adres urzadzenia poczatek
@@ -13,7 +13,8 @@ def unitCheck(start, stop, speed):
     :return: zwraca tablice z adresami urzadzen z którymi nawiazal połączenie
     '''
     units = []
-    apar = Master(port='com3', speed=speed)
+    apar = Master(port=port, speed=speed)
+    apar.masterDoc()
     while apar.connection == True:
         for unit in range(start, stop + 1):
             conn = apar.read_register(unit, 29, 1)
@@ -27,7 +28,7 @@ def unitCheck(start, stop, speed):
     return units
 
 
-def speed_change(units, speedOld, speedNew):
+def speed_change(units, speedOld, speedNew,port='com3'):
     '''
 
     :param units: tablica adresow urzadzen
@@ -104,7 +105,7 @@ def speed_change(units, speedOld, speedNew):
 
     for unit in units:
 
-        apar1 = Master(port='com3', speed=speedOld)
+        apar1 = Master(port=port, speed=speedOld)
         if apar1.connection == True:
             print(160 * "=")
             reg = checkConnection(apar1, unit)
@@ -112,11 +113,13 @@ def speed_change(units, speedOld, speedNew):
                 change = apparSpeedChange(speedOld, speedNew)
                 if change != False:
                     print("Sprawdzenie połaczenia:")
-                    apar2 = Master(port='com3', speed=speedNew)
+                    apar2 = Master(port=port, speed=speedNew)
                     if apar2.connection == True:
                         checkConnection(apar2, unit)
                         time.sleep(1)
 
 
-units = unitCheck(17, 23, 2400)
-speed_change(units, 2400, 2400)
+if __name__=="main":
+
+    units = unitCheck(17, 23, 2400)
+    speed_change(units, 2400, 2400)
