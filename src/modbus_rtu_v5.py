@@ -33,10 +33,10 @@ class Master():
 
     def masterDoc(self):
 
-        conection = {"connection": self.connection, "method": self.method, "port": self.port, "baudrate": self.speed,
+        conn = {"connection": self.connection, "method": self.method, "port": self.port, "baudrate": self.speed,
                      "stopbits": self.stopbits, "parity": self.parity, "bytesize": self.bytesize,
                      "timeout": self.timeout, }
-        print(conection)
+        print(conn)
 
     def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int'):
 
