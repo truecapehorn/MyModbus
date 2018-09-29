@@ -36,7 +36,7 @@ class Master():
         conn = {"connection": self.connection, "method": self.method, "port": self.port, "baudrate": self.speed,
                      "stopbits": self.stopbits, "parity": self.parity, "bytesize": self.bytesize,
                      "timeout": self.timeout, }
-        print(conn)
+        return print("Parametry: ",conn)
 
     def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int'):
 
