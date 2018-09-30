@@ -15,13 +15,16 @@ def unitCheck(tab, start, stop, speed, port='com3'):
     apar.masterDoc()
     while apar.connection == True:
         if start != None and stop != None and tab == None:
-            for unit in range(start, stop + 1):
-                conn = apar.read_register(unit, 29, 1)
-                print(conn)
-                if conn != False and unit not in units:
-                    units.append(unit)
-                if unit == stop:
-                    break
+            if start>stop:
+                print("Start musi byc mniejszy niz stop")
+            else:
+                for unit in range(start, stop + 1):
+                    conn = apar.read_register(unit, 29, 1)
+                    print(conn)
+                    if conn != False and unit not in units:
+                        units.append(unit)
+                    if unit == stop:
+                        break
         elif tab != None and start == None and stop == None:
             for unit in tab:
                 conn = apar.read_register(unit, 29, 1)
