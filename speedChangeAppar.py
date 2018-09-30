@@ -28,10 +28,10 @@ parser.add_argument('-o', action='store', dest='speed_old', default=2400, type=i
 parser.add_argument('-n', action='store', dest='speed_new', default=9600, type=int,
                     help='Nowa wartosc predkosci. Defaulut: 9600')
 
-parser.add_argument('-start', action='store', dest='reg_start', type=int,
+parser.add_argument('-p','--start', action='store', dest='reg_start', type=int,
                     help='Start zapytania')
 
-parser.add_argument('-stop', action='store', dest='reg_stop', type=int,
+parser.add_argument('-k','--stop', action='store', dest='reg_stop', type=int,
                     help='Stop zapytania')
 
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
