@@ -2,7 +2,7 @@ from src.modbus_rtu_v5 import Master
 import time
 
 
-def unitCheck(start, stop, speed, port='com3'):
+def unitCheck(tab, start, stop, speed, port='com3'):
     '''
 
     :param start: adres urzadzenia poczatek
@@ -14,13 +14,20 @@ def unitCheck(start, stop, speed, port='com3'):
     apar = Master(port=port, speed=speed)
     apar.masterDoc()
     while apar.connection == True:
-        for unit in range(start, stop + 1):
-            conn = apar.read_register(unit, 29, 1)
-            print(conn)
-            if conn != False:
-                units.append(unit)
-            if unit == stop:
-                break
+        if start != None and stop != None and tab == None:
+            for unit in range(start, stop + 1):
+                conn = apar.read_register(unit, 29, 1)
+                print(conn)
+                if conn != False and unit not in units:
+                    units.append(unit)
+                if unit == stop:
+                    break
+        elif tab != None and start == None and stop == None:
+            for unit in tab:
+                conn = apar.read_register(unit, 29, 1)
+                print(conn)
+                if conn != False and unit not in units:
+                    units.append(unit)
         break
     print("ODCZYTANE URZADZENIA: ", units)
     return units
