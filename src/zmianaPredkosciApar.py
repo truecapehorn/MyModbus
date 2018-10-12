@@ -1,5 +1,6 @@
-from src.modbus_rtu_v5 import Master
+﻿from src.modbus_rtu_v5 import Master
 import time
+import sys
 
 
 def unitCheck(tab, start, stop, speed, port='com3'):
@@ -101,7 +102,7 @@ def speed_change(units, speedOld, speedNew, port='com3'):
         testVar = input("\t!!! Czy chcesz zmienic adres z {} na {} ( t/n).".format(speedOld, speedNew))
         if testVar != "t":
             print("Wyjscie z programu")
-            return False
+            return sys.exit(0)
         else:
             print("Zmiana adresu na ", speedNew)
             # przypisanie nowej wartosci rejestru
