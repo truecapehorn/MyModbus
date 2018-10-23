@@ -41,6 +41,8 @@ class Master():
         :param data_type: int czy float
         :param transp: czy transpozycja tablucy pomiaru . big edian na litle edian czy jakos tak
         :return: zwraca odzcytane rejestry
+                [0] - słownik
+                [1] - lista
         '''
 
         """Funkcja glowna odczytu rejestrow, wywolujaca inne podfunkcje"""
@@ -53,9 +55,9 @@ class Master():
         elif reg_type == "input":
             data = self.read_input(parm)
         self.client.close()
-        measure = self.choise_data_type(data, data_type, transp)
-        self.display_data(measure, unit, reg_start)
-        return measure
+        measure = self.choise_data_type(data, data_type, transp) # wynik odczytu jako lista
+        dicData=self.display_data(measure, unit, reg_start) # zamiana na slownik i wydruk
+        return dicData, measure
 
     def write_register(self, reg_add, val, unit):
         '''
@@ -134,13 +136,12 @@ class Master():
         return data
 
     def display_data(self, data, unit, reg_start):
-        dic_val = {}
         if data != []:
-            for nr, v in enumerate(data):
-                dic_val[nr + reg_start] = v
+            dic_val = {nr + reg_start: v for nr, v in enumerate(data)}
             print("Urzadzenie {} - {}".format(str(unit), dic_val))
         else:
             pass
+        return dic_val
 
 
 if __name__ == '__main__':
