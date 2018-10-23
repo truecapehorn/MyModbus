@@ -27,19 +27,22 @@ class Master():
 
     def masterDoc(self):
 
-        conn = {"connection": self.connection, "host": self.host, "port": self.port }
+        conn = {"connection": self.connection, "host": self.host, "port": self.port}
         return print("Parametry: ", conn)
 
     def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int', transp=None):
 
         '''
 
-        :param unit: adres urzadzenia
+        :param unit: adres adres urzadzenia
         :param reg_start: rejestr poczatkowy
         :param reg_lenght: dlugosc rejestru
         :param reg_type: typ rejestru czy (holding lub input) def. holding
         :param data_type: int czy float
+        :param transp: czy transpozycja tablucy pomiaru . big edian na litle edian czy jakos tak
         :return: zwraca odzcytane rejestry
+                [0] - słownik
+                [1] - lista
         '''
 
         """Funkcja glowna odczytu rejestrow, wywolujaca inne podfunkcje"""
@@ -52,9 +55,9 @@ class Master():
         elif reg_type == "input":
             data = self.read_input(parm)
         self.client.close()
-        measure = self.choise_data_type(data, data_type,transp)
-        self.display_data(measure, unit, reg_start)
-        return measure
+        measure = self.choise_data_type(data, data_type, transp)  # wynik odczytu jako lista
+        dicData = self.display_data(measure, unit, reg_start)  # zamiana na slownik i wydruk
+        return dicData, measure
 
     def write_register(self, reg_add, val, unit):
         '''
@@ -118,31 +121,30 @@ class Master():
     def check_write(self, parm):
         pass
 
-    def choise_data_type(self, data, data_type,transp):
-        """Jezli data bedzie typu long to trzeba zrobic rekompozycje rejestrow 16bit"""
+    def choise_data_type(self, data, data_type, transp):
+        """Jezli data bedzie typu long to trzeba zrobic rekompozycje rejestrow 16bit lub nie
+            Wrzycenie do numpy i przerobienie z int 16  na float 32
+        """
         if data_type != 'int':
-            if transp !=None:
+            if transp != None:  # transpozycja tablicy [0,1] na [1,0]
                 data[0::2], data[1::2] = data[1::2], data[0::2]
             data_arr = np.array([data], dtype=np.int16)
-            data_as_float = data_arr.view(dtype=np.float32).tolist()[0] # to list zmienia na liste i pomija [[]]
+            data_as_float = data_arr.view(dtype=np.float32).tolist()[0]  # to list zmienia na liste i pomija [[]]
             data = data_as_float
         else:
             pass
         return data
 
     def display_data(self, data, unit, reg_start):
-        dic_val = {}
         if data != []:
-            for nr, v in enumerate(data):
-                dic_val[nr + reg_start] = v
+            dic_val = {nr + reg_start: v for nr, v in enumerate(data)}
             print("Urzadzenie {} - {}".format(str(unit), dic_val))
         else:
             pass
-
+        return dic_val
 
 
 if __name__ == '__main__':
-
-    staski=Master('192.168.0.35',502)
-    staski.read_register(1,0,120)
+    staski = Master('192.168.0.35', 502)
+    staski.read_register(1, 0, 120)
     staski.read_register(1, 120, 120)
