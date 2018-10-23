@@ -30,7 +30,7 @@ class Master():
         conn = {"connection": self.connection, "host": self.host, "port": self.port }
         return print("Parametry: ", conn)
 
-    def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int'):
+    def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int', transp=None):
 
         '''
 
@@ -52,7 +52,7 @@ class Master():
         elif reg_type == "input":
             data = self.read_input(parm)
         self.client.close()
-        measure = self.choise_data_type(data, data_type)
+        measure = self.choise_data_type(data, data_type,transp)
         self.display_data(measure, unit, reg_start)
         return measure
 
@@ -118,12 +118,13 @@ class Master():
     def check_write(self, parm):
         pass
 
-    def choise_data_type(self, data, data_type):
+    def choise_data_type(self, data, data_type,transp):
         """Jezli data bedzie typu long to trzeba zrobic rekompozycje rejestrow 16bit"""
         if data_type != 'int':
-            data[0::2], data[1::2] = data[1::2], data[0::2]
+            if transp !=None:
+                data[0::2], data[1::2] = data[1::2], data[0::2]
             data_arr = np.array([data], dtype=np.int16)
-            data_as_float = data_arr.view(dtype=np.float32)
+            data_as_float = data_arr.view(dtype=np.float32).tolist()[0] # to list zmienia na liste i pomija [[]]
             data = data_as_float
         else:
             pass
@@ -131,7 +132,7 @@ class Master():
 
     def display_data(self, data, unit, reg_start):
         dic_val = {}
-        if data != False:
+        if data != []:
             for nr, v in enumerate(data):
                 dic_val[nr + reg_start] = v
             print("Urzadzenie {} - {}".format(str(unit), dic_val))

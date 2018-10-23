@@ -30,6 +30,9 @@ parser.add_argument('-ri', '--input', action='store_const', dest='reg_type', con
 parser.add_argument('-i', '--int', action='store_const', dest='data_type', const='int', help='Rejetry typu int')
 
 parser.add_argument('-f', '--float', action='store_const', dest='data_type', const='float', help='Rejetry typu float')
+parser.add_argument('-t', '--transpozycja', action='store_const', dest='transp', const='transp', help='Czy trasnpozycja rejestrow w tabicy float?')
+
+
 
 parser.add_argument('-q', '--qty', action='store', dest='qty', default=1, type=int, help='Ilosc powtorzen def: 1')
 
@@ -49,7 +52,8 @@ for port in actions['port']:
             print(100*'=')
             print('Pomiar ', c)
             for u in actions['units']:
-                master.read_register(u, actions['reg_start'], actions['reg_lenght'], actions['reg_type'], actions['data_type'])
+                print(100*'+')
+                master.read_register(u, actions['reg_start'], actions['reg_lenght'], actions['reg_type'], actions['data_type'], actions['transp'])
             print(100 * '=')
     else:
         print('\n!!! Połaczenie z adresem {} na porcie {} nie udane !!!'.format(actions['host'],port))
