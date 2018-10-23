@@ -50,7 +50,7 @@ for port in actions['port']:
     if master.connection==True:
         for c, v in enumerate(range(0, actions['qty']), 1):
             print(100*'=')
-            print('Pomiar ', c)
+            print('Pomiar TCP ', c)
             for u in actions['units']:
                 print(100*'+')
                 master.read_register(u, actions['reg_start'], actions['reg_lenght'], actions['reg_type'], actions['data_type'], actions['transp'])

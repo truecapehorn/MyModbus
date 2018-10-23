@@ -34,11 +34,12 @@ class Master():
 
         '''
 
-        :param unit: adres urzadzenia
+        :param unit: adres adres urzadzenia
         :param reg_start: rejestr poczatkowy
         :param reg_lenght: dlugosc rejestru
         :param reg_type: typ rejestru czy (holding lub input) def. holding
         :param data_type: int czy float
+        :param transp: czy transpozycja tablucy pomiaru . big edian na litle edian czy jakos tak
         :return: zwraca odzcytane rejestry
         '''
 
@@ -119,9 +120,11 @@ class Master():
         pass
 
     def choise_data_type(self, data, data_type,transp):
-        """Jezli data bedzie typu long to trzeba zrobic rekompozycje rejestrow 16bit"""
+        """Jezli data bedzie typu long to trzeba zrobic rekompozycje rejestrow 16bit lub nie
+            Wrzycenie do numpy i przerobienie z int 16  na float 32
+        """
         if data_type != 'int':
-            if transp !=None:
+            if transp !=None: # transpozycja tablicy [0,1] na [1,0]
                 data[0::2], data[1::2] = data[1::2], data[0::2]
             data_arr = np.array([data], dtype=np.int16)
             data_as_float = data_arr.view(dtype=np.float32).tolist()[0] # to list zmienia na liste i pomija [[]]
