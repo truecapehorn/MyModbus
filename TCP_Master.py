@@ -48,6 +48,8 @@ elif actions['data_type'] != 'int' and actions['reg_lenght']%2!=0:
     print( '!!! Dlugosc zapytania MUSI byc parzysta !!!')
     sys.exit(1)
 
+reg={}
+
 for port in actions['port']:
     master = Master(actions['host'], port)
     master.masterDoc()
@@ -68,7 +70,6 @@ for port in actions['port']:
 # actions={'host': '192.168.0.35', 'port': [502], 'units': [1], 'reg_start': 0, 'reg_lenght': 10, 'reg_type': 'holding','data_type': 'int', 'qty': 1}
 
 
-#print({ x:y for x,y in enumerate(reg) })
 
 for k,v in reg[0].items():
     print('{} - {}'.format(k,v))
