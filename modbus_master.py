@@ -1,4 +1,4 @@
-from modbus_rtu_v3 import Api
+from src.modbus_rtu_v3 import Api
 import argparse
 import textwrap
 

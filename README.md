@@ -8,7 +8,6 @@ Odczyt i zapis rejstrow urządzen Modbus RTU
 
 ## Note
 
-Obowiazujaca wersja v5. 
-Ale program konsolowy dziala na v3
-
-!!! Jescze nie nie dziala sporo funkcji  !!!
+* mozna zmieniac speeda dla aparow
+* odczyt rtu dziala w wersji v3 program modbus_master
+* odczyt tcp dziala w wersji v1 i programie tcp_master

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
@@ -9,116 +9,140 @@ from collections import OrderedDict
 import time
 import numpy as np
 import logging
+
+
 # logging.basicConfig()
 # log = logging.getLogger()
 # log.setLevel(logging.DEBUG)
 
 
-
-
 class Master():
     ''' Obsłoga Modbus RTU'''
 
-    def __init__(self, host,port):
+    def __init__(self, host, port):
         self.host = host
         self.port = port
-        self.client = ModbusClient(host=self.host,port=self.port,timeout=3)
+        self.client = ModbusClient(host, port)
         self.connection = self.client.connect()
-        print(
-            "Connection: {}\nhost = {},\nport = {}".format(
-                self.connection,
-                self.host,
-                self.port, ))
 
-    def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int'):
+    def masterDoc(self):
+
+        conn = {"connection": self.connection, "host": self.host, "port": self.port }
+        return print("Parametry: ", conn)
+
+    def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int', transp=None):
+
+        '''
+
+        :param unit: adres urzadzenia
+        :param reg_start: rejestr poczatkowy
+        :param reg_lenght: dlugosc rejestru
+        :param reg_type: typ rejestru czy (holding lub input) def. holding
+        :param data_type: int czy float
+        :return: zwraca odzcytane rejestry
+        '''
+
         """Funkcja glowna odczytu rejestrow, wywolujaca inne podfunkcje"""
-        # TODO: Nie wiem czy nazwa jest prawidlowa. Niby czyta rejestry ale tak naprawde obsluguje odczyt
-        # TODO: Jeszcze bardziej rozdzielic zadania funkcji na mniejsze funkcje
 
         parm = [unit, reg_start, reg_lenght]
         self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
-        time.sleep(0.0)
+        time.sleep(0.2)
         if reg_type == 'holding':
-            data = self.read_holding( parm)
+            data = self.read_holding(parm)
         elif reg_type == "input":
-            data = self.read_input( parm)
+            data = self.read_input(parm)
         self.client.close()
-        measure = self.choise_data_type(data, data_type)
-        self.display_data(measure,unit,reg_start)
+        measure = self.choise_data_type(data, data_type,transp)
+        self.display_data(measure, unit, reg_start)
         return measure
-    def write_register(self, reg_add,val,unit):
-        #print(self.client.connect())
-        # self.client.connect()
-        # print(self.client.connect())
-        parm=[unit,reg_add,val]
+
+    def write_register(self, reg_add, val, unit):
+        '''
+
+        :param reg_add: adres rejestru do zmiany
+        :param val: nowa wratosc rejstru
+        :param unit: adres urzadzenia w ktorej chcemy zmienic rejstr
+        :return: zwaraca zmiane rejstru
+        '''
+        parm = [unit, reg_add, val]
         self.write_single_register(parm)
         self.client.close()
-
-        return print('Nowa wartosc zapisana')
+        return print('\tNowa wartosc zapisana')
 
     def read_holding(self, parm):
-        try:
-            massure = self.client.read_holding_registers(parm[1], parm[2], unit=parm[0])
-            #self.assercion(massure)
-            print(massure)
+        '''
+
+        :param parm: tablica z ( unit, reg_start, reg_lenght )
+        :return: laczy sie z clientem i odczytuje holding reg. Sprawdza czy sa blady w polaczeniu
+        Jezli sa to funckcja assertion zwraca blad polaczenia.
+        '''
+        massure = self.client.read_holding_registers(parm[1], parm[2], unit=parm[0])
+        # sprawdzenie czy nie ma errorow
+        if self.assercion(massure, parm[0]) == False:
+
             return massure.registers[0:]
-        except AttributeError:
-            print('modbus error')
-            return ['NoN']
-
-
+        else:
+            return False
 
     def read_input(self, parm):
+        '''
+
+        :param parm: tablica z ( unit, reg_start, reg_lenght )
+        :return: laczy sie z clientem i odczytuje input reg. Sprawdza czy sa blady w polaczeniu
+        Jezli sa to funckcja assertion zwraca blad polaczenia.
+        '''
         massure = self.client.read_input_registers(parm[1], parm[2], unit=parm[0])
-        return massure.registers[0:]
+        if self.assercion(massure, parm[0]) == False:
 
-    def write_single_register(self,parm):
-        rq=self.client.write_register(parm[1], parm[2], unit=parm[0])
-        print(self.client._wait_for_data())
-        rr= self.client.read_holding_registers(parm[1],1,unit=parm[0])
-        self.assercion(rq)
-        assert (rr.registers[0] == parm[2]) # test the expected value
+            return massure.registers[0:]
+        else:
+            return False
 
-    def assercion(self,operation):
+    def write_single_register(self, parm):
+        self.client.write_register(parm[1], parm[2], unit=parm[0])
+
+    def assercion(self, operation, unit):
+        '''
+
+        :param operation: operacja do sprawdzenia bledu
+        :param unit: adres sprawdzanego urzadzenia
+        :return: zwraca blad lub nie robuc nic
+        '''
         # test that we are not an error
         if not operation.isError():
-            print("Nie ma erroru")
+            pass
         else:
-            print(" Jest error")
+            print("Bład polaczenia z adresem ", unit)
+        return operation.isError()
 
-
-
-    def check_write(self,parm):
+    def check_write(self, parm):
         pass
 
-    def choise_data_type(self, data, data_type):
+    def choise_data_type(self, data, data_type,transp):
         """Jezli data bedzie typu long to trzeba zrobic rekompozycje rejestrow 16bit"""
         if data_type != 'int':
-            data[0::2], data[1::2] = data[1::2], data[0::2]
+            if transp !=None:
+                data[0::2], data[1::2] = data[1::2], data[0::2]
             data_arr = np.array([data], dtype=np.int16)
-            data_as_float = data_arr.view(dtype=np.float32)
+            data_as_float = data_arr.view(dtype=np.float32).tolist()[0] # to list zmienia na liste i pomija [[]]
             data = data_as_float
         else:
             pass
         return data
 
-    def display_data(self, data,unit,reg_start):
-        dic_val={}
-        for nr,v in enumerate(data):
-            dic_val[nr+reg_start]=v
-        print("Urzadzenie {} - {}".format(str(unit),dic_val))
+    def display_data(self, data, unit, reg_start):
+        dic_val = {}
+        if data != []:
+            for nr, v in enumerate(data):
+                dic_val[nr + reg_start] = v
+            print("Urzadzenie {} - {}".format(str(unit), dic_val))
+        else:
+            pass
 
 
-# TODO: DODAC ZAPIS REJSTROW
-# TODO: DODAC POMNIEJSZE WYSPECIALIZOWANE MODULY DO ZMIANY ADRESU PREDKOSCI I MOZE JAKIS INNNE
 
 if __name__ == '__main__':
-    apar = Master(host='192.168.10.11', port=503)
-    print(apar.connection)
-    while apar.connection:
-        units=list(range(1,33))
-        print(units)
-        for i in units:
-            apar.read_register(i, 0, 4)
-            time.sleep(0)
-        print(160*"=")
+
+    staski=Master('192.168.0.35',502)
+    staski.read_register(1,0,120)
+    staski.read_register(1, 120, 120)
