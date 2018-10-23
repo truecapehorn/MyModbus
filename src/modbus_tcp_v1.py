@@ -55,8 +55,8 @@ class Master():
         elif reg_type == "input":
             data = self.read_input(parm)
         self.client.close()
-        measure = self.choise_data_type(data, data_type, transp) # wynik odczytu jako lista
-        dicData=self.display_data(measure, unit, reg_start) # zamiana na slownik i wydruk
+        measure = self.choise_data_type(data, data_type, transp)  # wynik odczytu jako lista
+        dicData = self.display_data(measure, unit, reg_start)  # zamiana na slownik i wydruk
         return dicData, measure
 
     def write_register(self, reg_add, val, unit):

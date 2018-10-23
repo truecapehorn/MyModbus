@@ -44,11 +44,11 @@ print("Dane wejsciowe: ", actions)
 if actions['reg_type'] == None or actions['data_type'] == None:
     print('\n!!! Trzeba wprowadzic typ rejetsru ( holding ?) oraz typ danych w rejestrach (int ?) !!!')
     sys.exit(1)
-elif actions['data_type'] != 'int' and actions['reg_lenght']%2!=0:
-    print( '!!! Dlugosc zapytania MUSI byc parzysta !!!')
+elif actions['data_type'] != 'int' and actions['reg_lenght'] % 2 != 0:
+    print('!!! Dlugosc zapytania MUSI byc parzysta !!!')
     sys.exit(1)
 
-reg={}
+reg = {}
 
 for port in actions['port']:
     master = Master(actions['host'], port)
@@ -61,7 +61,7 @@ for port in actions['port']:
                 print(100 * '+')
                 # odczytanie rejestrow i wpisanie ich w slownik "reg"
                 reg = master.read_register(u, actions['reg_start'], actions['reg_lenght'], actions['reg_type'],
-                                     actions['data_type'], actions['transp'])
+                                           actions['data_type'], actions['transp'])
             print(100 * '=')
     else:
         print('\n!!! Połaczenie z adresem {} na porcie {} nie udane !!!'.format(actions['host'], port))
@@ -70,7 +70,9 @@ for port in actions['port']:
 # actions={'host': '192.168.0.35', 'port': [502], 'units': [1], 'reg_start': 0, 'reg_lenght': 10, 'reg_type': 'holding','data_type': 'int', 'qty': 1}
 
 
-
-for k,v in reg[0].items():
-    print('{} - {}'.format(k,v))
-print(reg[1])
+# # TESTY
+# for k,v in reg[0].items():
+#     print('{} - {}'.format(k,v))
+# print(reg[1])
+#
+# print(reg[0].keys())
