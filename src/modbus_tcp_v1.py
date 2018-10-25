@@ -101,6 +101,11 @@ class Master():
         else:
             return False
 
+    def read_coils(self,start,count,unit):
+
+        massure=self.client.read_coils(start,count,unit=unit)
+        return massure.bits[0:]
+
     def write_single_register(self, parm):
         self.client.write_register(parm[1], parm[2], unit=parm[0])
 
