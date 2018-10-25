@@ -21,10 +21,6 @@ print(dic_val)
 
 def maping():
     F = open('komentarze_fatek_biuro.csv', 'r')
-    # excel_document = openpyxl.load_workbook('adr2.xlsx')
-    # print(excel_document)
-    wejscia=[]
-    wyjscia=[]
     lista=[]
     for line in F.readlines():
         parts = line.split(';')
@@ -39,11 +35,6 @@ fatek=maping()
 
 print(fatek)
 
-# for zmienna, wartosc in fatek.items(): # {'X0': {'komentarz': 'jarzeniówki kory',...}
-#     for item, value in dic_val.items(): # {'M0': False, 'M1': False,..}
-#         if zmienna==item:
-#             fatek[zmienna].update({'value':value})
-# print(fatek)
 
 for item, value in dic_val.items():  # {'M0': False, 'M1': False,..}
     for zmienna, wartosc in fatek.items():  # {'X0': {'komentarz': 'jarzeniówki kory',...}
