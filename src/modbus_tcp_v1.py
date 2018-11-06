@@ -130,7 +130,7 @@ class Master():
         """Jezli data bedzie typu long to trzeba zrobic rekompozycje rejestrow 16bit lub nie
             Wrzycenie do numpy i przerobienie z int 16  na float 32
         """
-        if data_type != 'int':
+        if data_type != 'int' and data!=False:
             if transp != None:  # transpozycja tablicy [0,1] na [1,0]
                 data[0::2], data[1::2] = data[1::2], data[0::2]
             data_arr = np.array([data], dtype=np.int16)

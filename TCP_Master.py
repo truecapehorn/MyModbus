@@ -62,6 +62,7 @@ for port in actions['port']:
                 # odczytanie rejestrow i wpisanie ich w slownik "reg"
                 reg = master.read_register(u, actions['reg_start'], actions['reg_lenght'], actions['reg_type'],
                                            actions['data_type'], actions['transp'])
+                master.client.close()
             print(100 * '=')
     else:
         print('\n!!! Połaczenie z adresem {} na porcie {} nie udane !!!'.format(actions['host'], port))
