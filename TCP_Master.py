@@ -39,6 +39,12 @@ parser.add_argument('-q', '--qty', action='store', dest='qty', default=1, type=i
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 
 actions = vars(parser.parse_args())  # pobranie wartosci akcji z namespace parasera w postaci slownika
+
+
+# actions={'host': '192.168.0.133', 'port': [502], 'units': [1], 'reg_start': 0, 'reg_lenght': 10, 'reg_type': 'holding','data_type': 'int', 'qty': 10, 'transp':'transp'}
+
+
+
 print("Dane wejsciowe: ", actions)
 
 if actions['reg_type'] == None or actions['data_type'] == None:
@@ -67,12 +73,14 @@ for port in actions['port']:
         print('\n!!! Połaczenie z adresem {} na porcie {} nie udane !!!'.format(actions['host'], port))
         continue
 
-# actions={'host': '192.168.0.35', 'port': [502], 'units': [1], 'reg_start': 0, 'reg_lenght': 10, 'reg_type': 'holding','data_type': 'int', 'qty': 1}
+ 	
+
+	# actions={'host': '192.168.0.133', 'port': [502], 'units': [1], 'reg_start': 0, 'reg_lenght': 10, 'reg_type': 'holding','data_type': 'int', 'qty': 10}
 
 
-# # TESTY
-# for k,v in reg[0].items():
-#     print('{} - {}'.format(k,v))
-# print(reg[1])
-#
-# print(reg[0].keys())
+	# # TESTY
+	# for k,v in reg[0].items():
+	#     print('{} - {}'.format(k,v))
+	# print(reg[1])
+	#
+	# print(reg[0].keys())
