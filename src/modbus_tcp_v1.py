@@ -101,9 +101,9 @@ class Master():
         else:
             return False
 
-    def read_coils(self,start,count,unit):
+    def read_coils(self, start, count, unit):
 
-        massure=self.client.read_coils(start,count,unit=unit)
+        massure = self.client.read_coils(start, count, unit=unit)
         return massure.bits[0:]
 
     def write_single_register(self, parm):
@@ -142,10 +142,11 @@ class Master():
 
     def display_data(self, data, unit, reg_start):
         if data != []:
-            dic_val = {nr + reg_start: v for nr, v in enumerate(data)}
+            if type(data)!=bool:
+                dic_val = {nr + reg_start: v for nr, v in enumerate(data)}
+            else:dic_val = data
             print("Urzadzenie {} - {}".format(str(unit), dic_val))
-        else:
-            pass
+        else:pass
         return dic_val
 
 
