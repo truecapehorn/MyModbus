@@ -3,6 +3,8 @@ import argparse
 import textwrap
 import sys
 
+print('Przykladowe dane wejsciowe:\n-a 192.168.0.133 -c [502] -u [1] -s 0 -l 10 -rh -i -q 10 -t')
+
 parser = argparse.ArgumentParser(
     prog='MasterTCP',
     formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -39,11 +41,11 @@ parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 
 actions = vars(parser.parse_args())  # pobranie wartosci akcji z namespace parasera w postaci slownika
 actions = {'host': '192.168.0.240', 'port': [510],
-           'units': [i for i in range(1, 256)], 'reg_start': 190, 'reg_lenght': 3, 'reg_type': 'holding',
+           'units': [i for i in range(1, 256)], 'reg_start': 194, 'reg_lenght': 3, 'reg_type': 'holding',
            'data_type': 'int',
            'qty': 1, 'transp': 'transp'}
 
-print('-a 192.168.0.133 -c [502] -u [1] -s 0 -l 10 -rh -i -q 10 -t')
+
 
 print("Dane wejsciowe: ", actions)
 if actions['reg_type'] == None or actions['data_type'] == None:
