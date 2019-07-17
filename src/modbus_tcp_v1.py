@@ -131,13 +131,13 @@ class Master():
         return data
 
     def display_data(self, data, unit, reg_start):
-        dic_val = {}
         if data != []:
-            for nr, v in enumerate(data):
-                dic_val[nr + reg_start] = v
+            if type(data)!=bool:
+                dic_val = {nr + reg_start: v for nr, v in enumerate(data)}
+            else:dic_val = data
             print("Urzadzenie {} - {}".format(str(unit), dic_val))
-        else:
-            pass
+        else:pass
+        return dic_val
 
 
 

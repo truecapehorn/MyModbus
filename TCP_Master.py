@@ -39,6 +39,8 @@ parser.add_argument('-q', '--qty', action='store', dest='qty', default=1, type=i
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 
 actions = vars(parser.parse_args())  # pobranie wartosci akcji z namespace parasera w postaci slownika
+actions={'host': '192.168.0.240', 'port': [510], 'units': [1], 'reg_start': 0, 'reg_lenght': 10, 'reg_type': 'holding','data_type': 'int', 'qty': 1}
+
 print("Dane wejsciowe: ", actions)
 if actions['reg_type'] == None or actions['data_type'] == None:
     print('\n!!! Trzeba wprowadzic typ rejetsru ( holding ?) oraz typ danych w rejestrach (int ?) !!!')
