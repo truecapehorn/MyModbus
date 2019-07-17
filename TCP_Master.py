@@ -41,7 +41,7 @@ parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 
 actions = vars(parser.parse_args())  # pobranie wartosci akcji z namespace parasera w postaci slownika
 actions = {'host': '192.168.0.240', 'port': [510],
-           'units': [i for i in range(1, 256)], 'reg_start': 194, 'reg_lenght': 3, 'reg_type': 'holding',
+           'units': [i for i in range(1, 256)], 'reg_start': 2109, 'reg_lenght': 4, 'reg_type': 'holding',
            'data_type': 'int',
            'qty': 1, 'transp': 'transp'}
 
