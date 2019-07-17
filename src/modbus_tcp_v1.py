@@ -27,7 +27,7 @@ class Master():
 
     def masterDoc(self):
 
-        conn = {"connection": self.connection, "host": self.host, "port": self.port }
+        conn = {"connection": self.connection, "host": self.host, "port": self.port}
         return print("Parametry: ", conn)
 
     def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int', transp=None):
@@ -52,7 +52,7 @@ class Master():
         elif reg_type == "input":
             data = self.read_input(parm)
         self.client.close()
-        measure = self.choise_data_type(data, data_type,transp)
+        measure = self.choise_data_type(data, data_type, transp)
         self.display_data(measure, unit, reg_start)
         return measure
 
@@ -118,13 +118,13 @@ class Master():
     def check_write(self, parm):
         pass
 
-    def choise_data_type(self, data, data_type,transp):
+    def choise_data_type(self, data, data_type, transp):
         """Jezli data bedzie typu long to trzeba zrobic rekompozycje rejestrow 16bit"""
         if data_type != 'int':
-            if transp !=None:
+            if transp != None:
                 data[0::2], data[1::2] = data[1::2], data[0::2]
             data_arr = np.array([data], dtype=np.int16)
-            data_as_float = data_arr.view(dtype=np.float32).tolist()[0] # to list zmienia na liste i pomija [[]]
+            data_as_float = data_arr.view(dtype=np.float32).tolist()[0]  # to list zmienia na liste i pomija [[]]
             data = data_as_float
         else:
             pass
@@ -132,17 +132,17 @@ class Master():
 
     def display_data(self, data, unit, reg_start):
         if data != []:
-            if type(data)!=bool:
+            if type(data) != bool:
                 dic_val = {nr + reg_start: v for nr, v in enumerate(data)}
-            else:dic_val = data
+            else:
+                dic_val = data
             print("Urzadzenie {} - {}".format(str(unit), dic_val))
-        else:pass
+        else:
+            pass
         return dic_val
 
 
-
 if __name__ == '__main__':
-
-    staski=Master('192.168.0.35',502)
-    staski.read_register(1,0,120)
+    staski = Master('192.168.0.35', 502)
+    staski.read_register(1, 0, 120)
     staski.read_register(1, 120, 120)
