@@ -39,7 +39,11 @@ parser.add_argument('-q', '--qty', action='store', dest='qty', default=1, type=i
 parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 
 actions = vars(parser.parse_args())  # pobranie wartosci akcji z namespace parasera w postaci slownika
-actions={'host': '192.168.0.240', 'port': [510], 'units': [1], 'reg_start': 0, 'reg_lenght': 10, 'reg_type': 'holding','data_type': 'int', 'qty': 1}
+actions = {'host': '192.168.0.240', 'port': [510],
+           'units': [i for i in range(1,256)], 'reg_start': 190, 'reg_lenght': 3, 'reg_type': 'holding', 'data_type': 'int',
+           'qty': 1, 'transp': 'transp'}
+
+print('-a 192.168.0.133 -c [502] -u [1] -s 0 -l 10 -rh -i -q 10 -t')
 
 print("Dane wejsciowe: ", actions)
 if actions['reg_type'] == None or actions['data_type'] == None:
