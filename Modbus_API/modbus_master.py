@@ -60,6 +60,7 @@ class RTU_Client():
             print(e)
             exit(1)
 
+# ====================================================================================================================
 
 class Master():
 
@@ -67,35 +68,34 @@ class Master():
         self.client = client
 
     def read_holding(self):
-        '''
-        Funkcja odczytu holding registerow.
-            :param parm: tablica z ( unit, reg_start, reg_lenght )
-            :return: laczy sie z clientem i odczytuje holding reg. Sprawdza czy sa blady w polaczeniu
-                Jezli sa to funckcja assertion zwraca blad polaczenia.
-        '''
-        massure = self.client.read_holding_registers(self.parm[1], self.parm[2], unit=self.parm[0])
-        # sprawdzenie czy nie ma errorow
-        if self.assercion(massure) == False:
+        self.reg_type = 'holding'
+
+
+        massure = self.client.read_holding_registers(self.reg_start, self.reg_lenght, unit=self.unit)
+        if self.assercion(massure) == False: # sprawdzenie czy nie ma errorow
             return massure.registers[0:]
 
     def read_input(self):
-        '''
-        Odczyt input registerow
-            :param parm: tablica z ( unit, reg_start, reg_lenght )
-            :return: laczy sie z clientem i odczytuje input reg. Sprawdza czy sa blady w polaczeniu
-                Jezli sa to funckcja assertion zwraca blad polaczenia.
-        '''
-        massure = self.client.read_input_registers(self.parm[1], self.parm[2], unit=self.parm[0])
-        if self.assercion(massure) == False:
+        self.reg_type = 'input'
+
+        massure = self.client.read_input_registers(self.reg_start, self.reg_lenght, unit=self.unit)
+        if self.assercion(massure) == False: # sprawdzenie czy nie ma errorow
             return massure.registers[0:]
 
     def write_single(self):
-        massure = self.client.write_register(self.parm_wr[1], self.parm_wr[2], unit=self.parm_wr[0])
-        if self.assercion(massure) == False:
+        self.reg_type = 'holding'
+
+        massure = self.client.write_register(self.val, self.unit, unit=self.reg_add,)
+        if self.assercion(massure) == False: # sprawdzenie czy nie ma errorow
             return print('Wartosc zapisana')
 
     def read_multiple_colis(self):
-        pass
+        self.reg_type = 'coil'
+        massure = self.client.read_coils(self.start, self.count, unit=self.unit)
+        if self.assercion(massure) == False: # sprawdzenie czy nie ma errorow
+            return massure.bits[0:self.count]
+
+# ------------------------------------------------------------------------------------------------------------------
 
     def assercion(self, operation):
         '''
@@ -141,29 +141,31 @@ class Master():
             print('Brak Danych')
         return return_dict
 
+# ---------------------------------------------------------------------------------------------------------------------
+
     def read_coils(self, start, count):
         self.start = start
         self.count = count
-        self.reg_type = 'coils'
 
         self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
-        measure = self.client.read_coils(self.start, self.count, unit=self.unit)
+        measure = self.read_multiple_colis()
         self.client.close()
-        if self.assercion(measure) == False:
-            return self.display_data(measure.bits[0:self.count], self.start)  # zamiana na slownik i wydruk
+        dicData = self.display_data(measure, self.start)  # zamiana na slownik i wydruk
+        return dicData
 
-    def write_register(self, reg_add_wr, val_wr, unit_wr):
+
+
+    def write_register(self, reg_add, val, unit):
         """
         :param reg_add_wr: Adres rejestru do zapisu
         :param val_wr: Wartosc do zapisu
         :param unit_wr: Adres urzadznia do zapisu
         :return:
         """
-        self.reg_add_wr = reg_add_wr
-        self.val_wr = val_wr
-        self.unit_wr = unit_wr
+        self.reg_add = reg_add
+        self.val = val
+        self.unit = unit
 
-        self.parm_wr = [self.reg_add_wr, self.val_wr, self.unit_wr]
         self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
         self.write_single()
         self.client.close()
@@ -171,28 +173,12 @@ class Master():
 
     def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int', transp=None):
 
-        '''
-        Funkcja glowna do czytania rejestrow.
-
-            :param unit: adres adres urzadzenia
-            :param reg_start: rejestr poczatkowy
-            :param reg_lenght: dlugosc zapytania
-            :param reg_type: typ rejestru czy (holding lub input) def. holding
-            :param data_type: int czy float
-            :param transp: czy transpozycja tablucy pomiaru . big edian na litle edian czy jakos tak
-            :return: zwraca odzcytane rejestry
-                    [0] - słownik
-        '''
-
-        """Funkcja glowna odczytu rejestrow, wywolujaca inne podfunkcje"""
-
         self.unit = unit
         self.reg_start = reg_start
         self.reg_lenght = reg_lenght
         self.reg_type = reg_type
         self.data_type = data_type
         self.transp = transp
-        self.parm = [self.unit, self.reg_start, self.reg_lenght]
 
         self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
         time.sleep(0.2)
@@ -201,10 +187,11 @@ class Master():
         elif self.reg_type == "input":
             data = self.read_input()
         self.client.close()
-        measure = self.choise_data_type(data)  # wynik odczytu jako lista w zaleznosci od traspozycji
-        dicData = self.display_data(measure, self.reg_start)  # zamiana na slownik i wydruk
+        d_type = self.choise_data_type(data)  # wynik odczytu jako lista w zaleznosci od traspozycji
+        dicData = self.display_data(d_type, self.reg_start)  # zamiana na slownik i wydruk
         return dicData
 
+# ===================================================================================================================
 
 if __name__ == '__main__':
     staski = TCP_Client('37.26.192.248', 502)
@@ -213,7 +200,7 @@ if __name__ == '__main__':
     reg = conn.read_register(1, 101, 10, reg_type='holding')
     print(reg)
 
-    coil = conn.read_coils(0, 250)
+    coil = conn.read_coils(95, 10)
     print(coil)
     try:
         for k, v in coil['Data'].items():
