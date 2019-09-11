@@ -2,12 +2,14 @@
 # -*- coding: utf-8 -*-
 
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
-from pymodbus.constants import Endian
-from pymodbus.payload import BinaryPayloadDecoder
-from pymodbus.payload import BinaryPayloadBuilder
-from collections import OrderedDict
+# from pymodbus.constants import Endian
+# from pymodbus.payload import BinaryPayloadDecoder
+# from pymodbus.payload import BinaryPayloadBuilder
+# from collections import OrderedDict
 import time
 import numpy as np
+
+
 import logging
 
 
@@ -16,8 +18,8 @@ import logging
 # log.setLevel(logging.DEBUG)
 
 
-class Master():
-    ''' Obsłoga Modbus RTU'''
+class TCP_Master():
+    ''' Obsłoga Modbus TCP'''
 
     def __init__(self, host, port):
         self.host = host
@@ -33,16 +35,17 @@ class Master():
     def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int', transp=None):
 
         '''
+        Funkcja glowna do czytania rejestrow.
 
-        :param unit: adres adres urzadzenia
-        :param reg_start: rejestr poczatkowy
-        :param reg_lenght: dlugosc rejestru
-        :param reg_type: typ rejestru czy (holding lub input) def. holding
-        :param data_type: int czy float
-        :param transp: czy transpozycja tablucy pomiaru . big edian na litle edian czy jakos tak
-        :return: zwraca odzcytane rejestry
-                [0] - słownik
-                [1] - lista
+            :param unit: adres adres urzadzenia
+            :param reg_start: rejestr poczatkowy
+            :param reg_lenght: dlugosc rejestru
+            :param reg_type: typ rejestru czy (holding lub input) def. holding
+            :param data_type: int czy float
+            :param transp: czy transpozycja tablucy pomiaru . big edian na litle edian czy jakos tak
+            :return: zwraca odzcytane rejestry
+                    [0] - słownik
+                    [1] - lista
         '''
 
         """Funkcja glowna odczytu rejestrow, wywolujaca inne podfunkcje"""
@@ -61,11 +64,11 @@ class Master():
 
     def write_register(self, reg_add, val, unit):
         '''
-
-        :param reg_add: adres rejestru do zmiany
-        :param val: nowa wratosc rejstru
-        :param unit: adres urzadzenia w ktorej chcemy zmienic rejstr
-        :return: zwaraca zmiane rejstru
+        Funkcja do zapisywania wartosci w rejestrze
+            :param reg_add: adres rejestru do zmiany
+            :param val: nowa wratosc rejstru
+            :param unit: adres urzadzenia w ktorej chcemy zmienic rejstr
+            :return: zwaraca zmiane rejstru
         '''
         parm = [unit, reg_add, val]
         self.write_single_register(parm)
@@ -74,10 +77,10 @@ class Master():
 
     def read_holding(self, parm):
         '''
-
-        :param parm: tablica z ( unit, reg_start, reg_lenght )
-        :return: laczy sie z clientem i odczytuje holding reg. Sprawdza czy sa blady w polaczeniu
-        Jezli sa to funckcja assertion zwraca blad polaczenia.
+        Funkcja odczytu holding registerow.
+            :param parm: tablica z ( unit, reg_start, reg_lenght )
+            :return: laczy sie z clientem i odczytuje holding reg. Sprawdza czy sa blady w polaczeniu
+                Jezli sa to funckcja assertion zwraca blad polaczenia.
         '''
         massure = self.client.read_holding_registers(parm[1], parm[2], unit=parm[0])
         # sprawdzenie czy nie ma errorow
@@ -89,10 +92,10 @@ class Master():
 
     def read_input(self, parm):
         '''
-
-        :param parm: tablica z ( unit, reg_start, reg_lenght )
-        :return: laczy sie z clientem i odczytuje input reg. Sprawdza czy sa blady w polaczeniu
-        Jezli sa to funckcja assertion zwraca blad polaczenia.
+        Odczyt input registerow
+            :param parm: tablica z ( unit, reg_start, reg_lenght )
+            :return: laczy sie z clientem i odczytuje input reg. Sprawdza czy sa blady w polaczeniu
+                Jezli sa to funckcja assertion zwraca blad polaczenia.
         '''
         massure = self.client.read_input_registers(parm[1], parm[2], unit=parm[0])
         if self.assercion(massure, parm[0]) == False:
@@ -101,9 +104,9 @@ class Master():
         else:
             return False
 
-    def read_coils(self,start,count,unit):
+    def read_coils(self, start, count, unit):
 
-        massure=self.client.read_coils(start,count,unit=unit)
+        massure = self.client.read_coils(start, count, unit=unit)
         return massure.bits[0:]
 
     def write_single_register(self, parm):
@@ -111,10 +114,10 @@ class Master():
 
     def assercion(self, operation, unit):
         '''
-
-        :param operation: operacja do sprawdzenia bledu
-        :param unit: adres sprawdzanego urzadzenia
-        :return: zwraca blad lub nie robuc nic
+        Sprawdznie bledow w polaczeniu
+            :param operation: operacja do sprawdzenia bledu
+            :param unit: adres sprawdzanego urzadzenia
+            :return: zwraca blad lub nie robuc nic
         '''
         # test that we are not an error
         if not operation.isError():
@@ -141,9 +144,24 @@ class Master():
         return data
 
     def display_data(self, data, unit, reg_start):
+<<<<<<< HEAD:src/modbus_tcp_v1.py
         dic_val=None
         if data != False:
             dic_val = {nr + reg_start: v for nr, v in enumerate(data)}
+=======
+        """
+        Wydrukowanie wynikow
+            :param data: Odczytana tablica z rejstrami
+            :param unit: Adres urzadznia
+            :param reg_start: Startoey adres rejestru
+            :return:
+        """
+        if data != []:
+            if type(data) != bool:
+                dic_val = {nr + reg_start: v for nr, v in enumerate(data)}
+            else:
+                dic_val = data
+>>>>>>> developerka:src/modbus_tcp.py
             print("Urzadzenie {} - {}".format(str(unit), dic_val))
         else:
             pass
@@ -151,6 +169,5 @@ class Master():
 
 
 if __name__ == '__main__':
-    staski = Master('192.168.0.35', 502)
+    staski = TCP_Master('192.168.0.35', 502)
     staski.read_register(1, 0, 120)
-    staski.read_register(1, 120, 120)
