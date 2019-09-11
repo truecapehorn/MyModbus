@@ -120,7 +120,7 @@ class Master():
         """
         if len(data) > 0:
             if type(data) != bool:
-                dic_val = {nr + start: v for nr, v in enumerate(data)}
+                dic_val = {str(nr + start): v for nr, v in enumerate(data)}
             else:
                 dic_val = data
             return_dict = {'Device': self.unit, 'Reg_type': self.reg_type, 'Data': dic_val}
@@ -196,9 +196,10 @@ if __name__ == '__main__':
     conn = Master(staski.client)
 
     reg = conn.read_register(1, 101, 10, reg_type='holding')
-    # print(reg)
+    print(reg)
 
     coil = conn.read_coils(0, 250)
+    print(coil)
     try:
         for k, v in coil['Data'].items():
             if v == True:
