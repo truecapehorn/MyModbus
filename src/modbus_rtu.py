@@ -16,7 +16,7 @@ import logging
 # log.setLevel(logging.DEBUG)
 
 
-class Master():
+class RTU_Master():
     ''' Obsłoga Modbus RTU'''
 
     def __init__(self, speed, port, method='rtu', stopbits=1, parity='N', bytesize=8, timeout=1):
