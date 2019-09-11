@@ -27,8 +27,13 @@ class TCP_Client():
         try:
             self.client = TcpClient(host=self.host, port=self.port)
             self.connection = self.client.connect()
+            if self.connection == False:
+                print('Brak Polaczenia')
+                exit(1)
+
         except Exception as e:
             print(e)
+            exit(1)
 
 
 class RTU_Client():
@@ -48,8 +53,12 @@ class RTU_Client():
                                        stopbits=self.stopbits,
                                        parity=self.parity, bytesize=self.bytesize, timeout=self.timeout)
             self.connection = self.client.connect()
+            if self.connection == False:
+                print('Brak Polaczenia')
+                exit(1)
         except Exception as e:
             print(e)
+            exit(1)
 
 
 class Master():
@@ -80,9 +89,13 @@ class Master():
         if self.assercion(massure) == False:
             return massure.registers[0:]
 
-
     def write_single(self):
-        self.client.write_register(self.parm_wr[1], self.parm_wr[2], unit=self.parm_wr[0])
+        massure = self.client.write_register(self.parm_wr[1], self.parm_wr[2], unit=self.parm_wr[0])
+        if self.assercion(massure) == False:
+            return print('Wartosc zapisana')
+
+    def read_multiple_colis(self):
+        pass
 
     def assercion(self, operation):
         '''
@@ -94,7 +107,7 @@ class Master():
         if not operation.isError():
             pass
         else:
-            print("Bład polaczenia z adresem ", self.unit,'Typ: ',self.reg_type, "\nWyjątek: ", operation)
+            print("Bład polaczenia z adresem ", self.unit, 'Typ: ', self.reg_type, "\nWyjątek: ", operation)
         return operation.isError()
 
     def choise_data_type(self, data):
@@ -133,10 +146,11 @@ class Master():
         self.count = count
         self.reg_type = 'coils'
 
-        data = self.client.read_coils(self.start, self.count, unit=self.unit)
-        if self.assercion(data) == False:
-            return self.display_data(data.bits[0:self.count], self.start)  # zamiana na slownik i wydruk
-
+        self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
+        measure = self.client.read_coils(self.start, self.count, unit=self.unit)
+        self.client.close()
+        if self.assercion(measure) == False:
+            return self.display_data(measure.bits[0:self.count], self.start)  # zamiana na slownik i wydruk
 
     def write_register(self, reg_add_wr, val_wr, unit_wr):
         """
@@ -150,6 +164,7 @@ class Master():
         self.unit_wr = unit_wr
 
         self.parm_wr = [self.reg_add_wr, self.val_wr, self.unit_wr]
+        self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
         self.write_single()
         self.client.close()
         return print('\tNowa wartosc zapisana')
@@ -206,4 +221,3 @@ if __name__ == '__main__':
                 print(k, v)
     except Exception:
         pass
-
