@@ -130,7 +130,7 @@ class Master():
         """Jezli data bedzie typu long to trzeba zrobic rekompozycje rejestrow 16bit lub nie
             Wrzycenie do numpy i przerobienie z int 16  na float 32
         """
-        if data_type != 'int':
+        if data_type != 'int' and data!=False:
             if transp != None:  # transpozycja tablicy [0,1] na [1,0]
                 data[0::2], data[1::2] = data[1::2], data[0::2]
             data_arr = np.array([data], dtype=np.int16)
@@ -141,10 +141,16 @@ class Master():
         return data
 
     def display_data(self, data, unit, reg_start):
+<<<<<<< HEAD
         if data != []:
             if type(data)!=bool:
                 dic_val = {nr + reg_start: v for nr, v in enumerate(data)}
             else:dic_val = data
+=======
+        dic_val=None
+        if data != False:
+            dic_val = {nr + reg_start: v for nr, v in enumerate(data)}
+>>>>>>> c7795ef2990ac99d7fcaa728727f93d0e894b5e9
             print("Urzadzenie {} - {}".format(str(unit), dic_val))
         else:pass
         return dic_val
