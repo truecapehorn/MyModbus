@@ -285,9 +285,6 @@ if __name__ == '__main__':
     except Exception:
         pass
 
-    help(TCP_Client)
-
-    help(RTU_Client)
 
 
     # sma = TCP_Client('192.168.0.240', 502)
