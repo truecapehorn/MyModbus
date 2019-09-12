@@ -127,7 +127,7 @@ class Master():
             Wrzycenie do numpy i przerobienie z int 16  na float 32
         """
         if self.data_type != 'int':
-            if self.transp != None:  # transpozycja tablicy [0,1] na [1,0]
+            if self.transp != False:  # transpozycja tablicy [0,1] na [1,0]
                 data[0::2], data[1::2] = data[1::2], data[0::2]
             if self.data_type == 'float':
                 data_arr = np.array([data], dtype=np.int16)
@@ -192,7 +192,7 @@ class Master():
         self.client.close()
         return print('\tNowa wartosc zapisana')
 
-    def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int', transp=True):
+    def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int', transp=False):
         self.unit = unit
         self.reg_start = reg_start
         self.reg_lenght = reg_lenght
@@ -260,3 +260,9 @@ if __name__ == '__main__':
             print(reg_sma)
     except Exception as e:
         print(e)
+
+    cofowent = TCP_Client('192.168.0.30', 502)
+    cofowent_conn = Master(cofowent.client)
+    reg_cofowent = cofowent_conn.read_register(5, 0, 10, reg_type='holding', data_type='int')
+    print(reg_cofowent)
+
