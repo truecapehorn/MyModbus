@@ -11,7 +11,7 @@ API do odczytu rejstrow Modbus RTU/TCP.
 * Odczyt Rejestrow discrete input
 * Zapis do rejstru holding
 
-## Sposób Uzycia
+## Use
 
     staski = TCP_Client('192.168.1.100', 502)
     print("host:",staski.client.host)
@@ -24,7 +24,7 @@ API do odczytu rejstrow Modbus RTU/TCP.
     except Exception as e:
         print(e)
 
-## Dokumentacja
+## Doc
 
     class TCP_Client(builtins.object)
         TCP_Client(host, port)
