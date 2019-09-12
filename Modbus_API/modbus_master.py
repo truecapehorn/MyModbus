@@ -69,31 +69,28 @@ class Master():
 
     def read_holding(self):
         self.reg_type = 'holding'
-
-
         massure = self.client.read_holding_registers(self.reg_start, self.reg_lenght, unit=self.unit)
         if self.assercion(massure) == False: # sprawdzenie czy nie ma errorow
             return massure.registers[0:]
 
     def read_input(self):
         self.reg_type = 'input'
-
         massure = self.client.read_input_registers(self.reg_start, self.reg_lenght, unit=self.unit)
         if self.assercion(massure) == False: # sprawdzenie czy nie ma errorow
             return massure.registers[0:]
 
     def write_single(self):
         self.reg_type = 'holding'
-
         massure = self.client.write_register(self.val, self.unit, unit=self.reg_add,)
         if self.assercion(massure) == False: # sprawdzenie czy nie ma errorow
             return print('Wartosc zapisana')
 
     def read_multiple_colis(self):
         self.reg_type = 'coil'
-        massure = self.client.read_coils(self.start, self.count, unit=self.unit)
+        self.data_type = 'bool'
+        massure = self.client.read_coils(self.reg_start, self.reg_lenght, unit=self.unit)
         if self.assercion(massure) == False: # sprawdzenie czy nie ma errorow
-            return massure.bits[0:self.count]
+            return massure.bits[0:self.reg_lenght]
 
 # ------------------------------------------------------------------------------------------------------------------
 
@@ -110,6 +107,14 @@ class Master():
             print("Bład polaczenia z adresem ", self.unit, 'Typ: ', self.reg_type, "\nWyjątek: ", operation)
         return operation.isError()
 
+    def data_check(self,data):
+        try:
+            iter(data) # sprawdznie czy obiekt jest iterowalny
+            return True
+        except TypeError as te:
+            print('Brak Odczytanych danych')
+            return False
+
     def choise_data_type(self, data):
         """Jezli data bedzie typu long to trzeba zrobic rekompozycje rejestrow 16bit lub nie
             Wrzycenie do numpy i przerobienie z int 16  na float 32
@@ -117,51 +122,52 @@ class Master():
         if self.data_type != 'int':
             if self.transp != None:  # transpozycja tablicy [0,1] na [1,0]
                 data[0::2], data[1::2] = data[1::2], data[0::2]
-            data_arr = np.array([data], dtype=np.int16)
-            data_as_float = data_arr.view(dtype=np.float32).tolist()[0]  # to list zmienia na liste i pomija [[]]
-            data = data_as_float
+            if self.data_type=='float':
+                data_arr = np.array([data], dtype=np.int16)
+                data_as_float = data_arr.view(dtype=np.float32).tolist()[0]  # to list zmienia na liste i pomija [[]]
+                data = data_as_float
+            if self.data_type == 'int32':
+                data_arr = np.array([data], dtype=np.int16)
+                data_as_int32 = data_arr.view(dtype=np.int32).tolist()[0]  # to list zmienia na liste i pomija [[]]
+                data = data_as_int32
+
         else:
             pass
+
         return data
 
-    def display_data(self, data, start):
+    def display_data(self, data):
         """
         Wydrukowanie wynikow
             :param data: Odczytana tablica z rejstrami
             :param start: Startowy adres rejestru
             :return:
         """
-        if len(data) > 0:
-            if type(data) != bool:
-                dic_val = {str(nr + start): v for nr, v in enumerate(data)}
-            else:
-                dic_val = data
-            return_dict = {'Device': self.unit, 'Reg_type': self.reg_type, 'Data': dic_val}
-        else:
-            print('Brak Danych')
+        if self.data_type=='int':
+            dic_val = {str(nr + self.reg_start): v for nr, v in enumerate(data)}
+        else: dic_val = {str(nr*2 + self.reg_start): v for nr, v in enumerate(data)} # 0,2,4,6
+
+        return_dict = {'Device': self.unit, 'Reg_type': self.reg_type,'Data_type':self.data_type, 'Data': dic_val}
+
         return return_dict
 
 # ---------------------------------------------------------------------------------------------------------------------
 
     def read_coils(self, start, count):
-        self.start = start
-        self.count = count
+        self.reg_start = start
+        self.reg_lenght = count
 
         self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
         measure = self.read_multiple_colis()
         self.client.close()
-        dicData = self.display_data(measure, self.start)  # zamiana na slownik i wydruk
-        return dicData
+        data_ok=self.data_check(measure)
+        if data_ok:
+            dicData = self.display_data(measure)  # zamiana na slownik i wydruk
+            return dicData
 
 
 
     def write_register(self, reg_add, val, unit):
-        """
-        :param reg_add_wr: Adres rejestru do zapisu
-        :param val_wr: Wartosc do zapisu
-        :param unit_wr: Adres urzadznia do zapisu
-        :return:
-        """
         self.reg_add = reg_add
         self.val = val
         self.unit = unit
@@ -171,25 +177,28 @@ class Master():
         self.client.close()
         return print('\tNowa wartosc zapisana')
 
-    def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int', transp=None):
-
+    def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int', transp=True):
         self.unit = unit
         self.reg_start = reg_start
         self.reg_lenght = reg_lenght
         self.reg_type = reg_type
         self.data_type = data_type
         self.transp = transp
-
         self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
-        time.sleep(0.2)
+        time.sleep(0.0)
         if self.reg_type == 'holding':
             data = self.read_holding()
         elif self.reg_type == "input":
             data = self.read_input()
         self.client.close()
-        d_type = self.choise_data_type(data)  # wynik odczytu jako lista w zaleznosci od traspozycji
-        dicData = self.display_data(d_type, self.reg_start)  # zamiana na slownik i wydruk
-        return dicData
+        data_ok=self.data_check(data)
+        if data_ok:
+            d_type = self.choise_data_type(data)  # wynik odczytu jako lista w zaleznosci od traspozycji
+            dicData = self.display_data(d_type)  # zamiana na slownik i wydruk
+            return dicData
+
+
+
 
 # ===================================================================================================================
 
@@ -200,7 +209,7 @@ if __name__ == '__main__':
     reg = conn.read_register(1, 101, 10, reg_type='holding')
     print(reg)
 
-    coil = conn.read_coils(95, 10)
+    coil = conn.read_coils(0, 5)
     print(coil)
     try:
         for k, v in coil['Data'].items():
@@ -208,3 +217,11 @@ if __name__ == '__main__':
                 print(k, v)
     except Exception:
         pass
+
+    sma = TCP_Client('192.168.0.240',502)
+    sma_conn=Master(sma.client)
+    print('Polacznie z SMA',sma.connection)
+    reg_for_check=[30201,30233,30531,30775,30795,30803,30805,30813,30837,30839,30769,30771,30773,30957,30959,30961,30537,30953,40212,40915]
+    for i in reg_for_check:
+        reg_sma = sma_conn.read_register(3,i,2,reg_type='holding',data_type='int32',transp=True)
+        print(reg_sma)
