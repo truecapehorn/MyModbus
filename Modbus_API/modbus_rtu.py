@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from pymodbus.client.sync import ModbusTcpClient as ModbusClient
+from pymodbus.client.sync import ModbusSerialClient as ModbusClient
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
 from pymodbus.payload import BinaryPayloadBuilder
@@ -11,38 +11,44 @@ import numpy as np
 import logging
 
 
+
 # logging.basicConfig()
 # log = logging.getLogger()
 # log.setLevel(logging.DEBUG)
 
 
-class Master():
+class RTU_Master():
     ''' Obsłoga Modbus RTU'''
 
-    def __init__(self, host, port):
-        self.host = host
+    def __init__(self, speed, port, method='rtu', stopbits=1, parity='N', bytesize=8, timeout=1):
+        self.method = method
         self.port = port
-        self.client = ModbusClient(host, port)
+        self.speed = speed
+        self.stopbits = stopbits
+        self.parity = parity
+        self.bytesize = bytesize
+        self.timeout = timeout
+        self.client = ModbusClient(method=self.method, port=self.port, baudrate=self.speed, stopbits=self.stopbits,
+                                   parity=self.parity, bytesize=self.bytesize, timeout=self.timeout)
         self.connection = self.client.connect()
 
     def masterDoc(self):
 
-        conn = {"connection": self.connection, "host": self.host, "port": self.port}
+        conn = {"connection": self.connection, "method": self.method, "port": self.port, "baudrate": self.speed,
+                "stopbits": self.stopbits, "parity": self.parity, "bytesize": self.bytesize,
+                "timeout": self.timeout, }
         return print("Parametry: ", conn)
 
-    def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int', transp=None):
+    def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int'):
 
         '''
 
-        :param unit: adres adres urzadzenia
+        :param unit: adres urzadzenia
         :param reg_start: rejestr poczatkowy
         :param reg_lenght: dlugosc rejestru
         :param reg_type: typ rejestru czy (holding lub input) def. holding
         :param data_type: int czy float
-        :param transp: czy transpozycja tablucy pomiaru . big edian na litle edian czy jakos tak
         :return: zwraca odzcytane rejestry
-                [0] - słownik
-                [1] - lista
         '''
 
         """Funkcja glowna odczytu rejestrow, wywolujaca inne podfunkcje"""
@@ -55,9 +61,9 @@ class Master():
         elif reg_type == "input":
             data = self.read_input(parm)
         self.client.close()
-        measure = self.choise_data_type(data, data_type, transp)  # wynik odczytu jako lista
-        dicData = self.display_data(measure, unit, reg_start)  # zamiana na slownik i wydruk
-        return dicData, measure
+        measure = self.choise_data_type(data, data_type)
+        self.display_data(measure, unit, reg_start)
+        return measure
 
     def write_register(self, reg_add, val, unit):
         '''
@@ -101,11 +107,6 @@ class Master():
         else:
             return False
 
-    def read_coils(self, start, count, unit):
-
-        massure = self.client.read_coils(start, count, unit=unit)
-        return massure.bits[0:]
-
     def write_single_register(self, parm):
         self.client.write_register(parm[1], parm[2], unit=parm[0])
 
@@ -126,37 +127,32 @@ class Master():
     def check_write(self, parm):
         pass
 
-    def choise_data_type(self, data, data_type, transp):
-        """Jezli data bedzie typu long to trzeba zrobic rekompozycje rejestrow 16bit lub nie
-            Wrzycenie do numpy i przerobienie z int 16  na float 32
-        """
-        if data_type != 'int' and data!=False:
-            if transp != None:  # transpozycja tablicy [0,1] na [1,0]
-                data[0::2], data[1::2] = data[1::2], data[0::2]
+    def choise_data_type(self, data, data_type):
+        """Jezli data bedzie typu long to trzeba zrobic rekompozycje rejestrow 16bit"""
+        if data_type != 'int':
+            data[0::2], data[1::2] = data[1::2], data[0::2]
             data_arr = np.array([data], dtype=np.int16)
-            data_as_float = data_arr.view(dtype=np.float32).tolist()[0]  # to list zmienia na liste i pomija [[]]
+            data_as_float = data_arr.view(dtype=np.float32)
             data = data_as_float
         else:
             pass
         return data
 
     def display_data(self, data, unit, reg_start):
-<<<<<<< HEAD
-        if data != []:
-            if type(data)!=bool:
-                dic_val = {nr + reg_start: v for nr, v in enumerate(data)}
-            else:dic_val = data
-=======
-        dic_val=None
+        dic_val = {}
         if data != False:
-            dic_val = {nr + reg_start: v for nr, v in enumerate(data)}
->>>>>>> c7795ef2990ac99d7fcaa728727f93d0e894b5e9
+            for nr, v in enumerate(data):
+                dic_val[nr + reg_start] = v
             print("Urzadzenie {} - {}".format(str(unit), dic_val))
-        else:pass
-        return dic_val
+        else:
+            pass
+
+
+# TODO: Dziala odczyt i zapis single reg.
+# TODO: Zrobic program glowny
+# TODO: Zmienic na klasy
 
 
 if __name__ == '__main__':
-    staski = Master('192.168.0.35', 502)
-    staski.read_register(1, 0, 120)
-    staski.read_register(1, 120, 120)
+
+    pass
