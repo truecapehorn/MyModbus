@@ -58,54 +58,54 @@ class Master():
         self.client = client
 
     # metody cient
-    def read_holding(self):
+    def _read_holding(self):
         '''
         Funkcja pomocnicza
         :return:holding reg
         '''
         self.reg_type = 'holding'
         massure = self.client.read_holding_registers(self.reg_start, self.reg_lenght, unit=self.unit)
-        if self.assercion(massure) == False:  # sprawdzenie czy nie ma errorow
+        if self._assercion(massure) == False:  # sprawdzenie czy nie ma errorow
             return massure.registers[0:]
 
-    def read_input(self):
+    def _read_input(self):
         '''
         Funkcja pomocnicza
         :return:
         '''
         self.reg_type = 'input'
         massure = self.client.read_input_registers(self.reg_start, self.reg_lenght, unit=self.unit)
-        if self.assercion(massure) == False:  # sprawdzenie czy nie ma errorow
+        if self._assercion(massure) == False:  # sprawdzenie czy nie ma errorow
             return massure.registers[0:]
 
-    def write_single(self):
+    def _write_single(self):
         '''
         Funkcja pomocnicza
         :return:
         '''
         self.reg_type = 'holding'
-        massure = self.client.write_register(self.val, self.unit, unit=self.reg_add, )
-        if self.assercion(massure) == False:  # sprawdzenie czy nie ma errorow
+        massure = self.client.write_register(self.new_val, self.unit, unit=self.reg_add, )
+        if self._assercion(massure) == False:  # sprawdzenie czy nie ma errorow
             return print('Wartosc zapisana')
 
-    def read_multiple_colis(self):
+    def _read_multiple_colis(self):
         '''
         Funkcja pomocnicza
         :return:
         '''
         self.reg_type = 'coil'
         massure = self.client.read_coils(self.reg_start, self.reg_lenght, unit=self.unit)
-        if self.assercion(massure) == False:  # sprawdzenie czy nie ma errorow
+        if self._assercion(massure) == False:  # sprawdzenie czy nie ma errorow
             return massure.bits[0:self.reg_lenght]
 
-    def read_multipe_discrete_inputs(self):
+    def _read_multipe_discrete_inputs(self):
         '''
         Funkcja pomocnicza
         :return:
         '''
         self.reg_type = 'disc_input'
         massure = self.client.read_discrete_inputs(self.reg_start, self.reg_lenght, unit=self.unit)
-        assertion_check = self.assercion(massure)
+        assertion_check = self._assercion(massure)
         if assertion_check == False:  # sprawdzenie czy nie ma errorow
             return massure.bits[0:self.reg_lenght]
         else:
@@ -113,7 +113,7 @@ class Master():
 
     # ------------------------------------------------------------------------------------------------------------------
     # metody pomocnicze
-    def assercion(self, operation):
+    def _assercion(self, operation):
         '''
 
         :param operation: Metoda klienta. Sprawdza czy sciagnelo dane.
@@ -129,7 +129,7 @@ class Master():
                                                                                      operation, ))
         return operation.isError()
 
-    def data_check(self, data):
+    def _data_check(self, data):
         '''
         Sprawdza czy obiekt jest iterowalny.
         :param data: Pobrana lista rejestrow.
@@ -142,7 +142,7 @@ class Master():
             # print('Brak Odczytanych danych')
             return False
 
-    def choise_data_type(self, data):
+    def _choise_data_type(self, data):
         '''
         Sprawdza czy trzeba zamienic miejscami rejstry i koduje do opowiedniego formatu.
         :param data: Pobrana lista rejestrow
@@ -161,7 +161,7 @@ class Master():
                 data = data_as_int32
         return data
 
-    def data_to_dict(self, data):
+    def _data_to_dict(self, data):
         '''
         Wrzuca ponumerowane rejestry do slownika
         :param data: Lista z pobranymi rejestrami
@@ -193,28 +193,28 @@ class Master():
 
         self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
         if self.reg_type == 'coil':
-            measure = self.read_multiple_colis()
+            measure = self._read_multiple_colis()
         elif self.reg_type == 'disc_input':
-            measure = self.read_multipe_discrete_inputs()
+            measure = self._read_multipe_discrete_inputs()
         else:
             print("Zly typ rejstru")
         self.client.close()
         if measure != False:
-            data_ok = self.data_check(measure)
+            data_ok = self._data_check(measure)
             if data_ok:
-                dicData = self.data_to_dict(measure)  # zamiana na slownik i wydruk
+                dicData = self._data_to_dict(measure)  # zamiana na slownik i wydruk
                 return dicData
 
-    def write_register(self, reg_add, val, unit):
+    def write_register(self, reg_add, new_val, unit):
         '''
         Nie przetestowane
         '''
         self.reg_add = reg_add
-        self.val = val
+        self.new_val = new_val
         self.unit = unit
 
         self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
-        self.write_single()
+        self._write_single()
         self.client.close()
         return print('\tNowa wartosc zapisana')
 
@@ -238,15 +238,15 @@ class Master():
         self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
         time.sleep(0.0)
         if self.reg_type == 'holding':
-            data = self.read_holding()
+            data = self._read_holding()
         elif self.reg_type == "input":
-            data = self.read_input()
+            data = self._read_input()
         self.client.close()
         if data != False:
-            data_ok = self.data_check(data)
+            data_ok = self._data_check(data)
             if data_ok:
-                d_type = self.choise_data_type(data)  # wynik odczytu jako lista w zaleznosci od traspozycji
-                dicData = self.data_to_dict(d_type)  # zamiana na slownik i wydruk
+                d_type = self._choise_data_type(data)  # wynik odczytu jako lista w zaleznosci od traspozycji
+                dicData = self._data_to_dict(d_type)  # zamiana na slownik i wydruk
                 return dicData
 
 
@@ -265,6 +265,7 @@ if __name__ == '__main__':
     except Exception as e:
         print(e)
 
+
     staski = TCP_Client('37.26.192.248', 502)
     conn = Master(staski.client)
     try:
@@ -277,13 +278,13 @@ if __name__ == '__main__':
         pass
 
 
-
     try:
         for k, v in coil['Data'].items():
             if v == True:
                 print(k, v)
     except Exception:
         pass
+
 
 
 
