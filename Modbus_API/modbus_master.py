@@ -3,16 +3,10 @@
 
 from pymodbus.client.sync import ModbusTcpClient as TcpClient
 from pymodbus.client.sync import ModbusSerialClient as SerialClient
-# from pymodbus.constants import Endian
-# from pymodbus.payload import BinaryPayloadDecoder
-# from pymodbus.payload import BinaryPayloadBuilder
-# from collections import OrderedDict
 import time
 import numpy as np
 
-import logging
-
-
+# import logging
 # logging.basicConfig()
 # log = logging.getLogger()
 # log.setLevel(logging.DEBUG)
@@ -180,7 +174,7 @@ class Master():
         return_dict = {'Device': self.unit, 'Reg_type': self.reg_type, 'Data_type': self.data_type, 'Data': dic_val}
         return return_dict
 
-    # ---------------------------------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     # metody uruchomieniowe
     def read_bool(self, unit, reg_start, reg_lenght, reg_type='coil'):
         '''
@@ -290,6 +284,10 @@ if __name__ == '__main__':
                 print(k, v)
     except Exception:
         pass
+
+    help(TCP_Client)
+
+    help(RTU_Client)
 
 
     # sma = TCP_Client('192.168.0.240', 502)
