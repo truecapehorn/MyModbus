@@ -170,7 +170,7 @@ class Master():
         if self.data_type == 'int' or self.data_type == 'bool':
             dic_val = {str(nr + self.reg_start): v for nr, v in enumerate(data)}
         else:
-            dic_val = {str(nr * 2 + self.reg_start): v for nr, v in enumerate(data)}  # 0,2,4,6
+            dic_val = {str(nr + self.reg_start): v for nr, v in enumerate(data[::2])}  # 0,2,4,6
         return_dict = {'Device': self.unit, 'Reg_type': self.reg_type, 'Data_type': self.data_type, 'Data': dic_val}
         return return_dict
 
@@ -292,16 +292,16 @@ if __name__ == '__main__':
 
 
 
-    # sma = TCP_Client('192.168.0.240', 502)
-    # sma_conn = Master(sma.client)
-    # try:
-    #     reg_for_check = [30201, 30233, 30531, 30775, 30795, 30803, 30805, 30813, 30837, 30839, 30769, 30771, 30773,
-    #                      30957, 30959, 30961, 30537, 30953, 40212, 40915]
-    #     for i in reg_for_check:
-    #         reg_sma = sma_conn.read_register(3, i, 2, reg_type='holding', data_type='int32', transp=True)
-    #         print(reg_sma)
-    # except Exception as e:
-    #     print(e)
+    sma = TCP_Client('192.168.0.240', 502)
+    sma_conn = Master(sma.client)
+    try:
+        reg_for_check = [30201, 30233, 30531, 30775, 30795, 30803, 30805, 30813, 30837, 30839, 30769, 30771, 30773,
+                         30957, 30959, 30961, 30537, 30953, 40212, 40915]
+        for i in reg_for_check:
+            reg_sma = sma_conn.read_register(3, i, 2, reg_type='holding', data_type='int32', transp=True)
+            print(reg_sma)
+    except Exception as e:
+        print(e)
     #
     # cofowent = TCP_Client('192.168.0.30', 502)
     # cofowent_conn = Master(cofowent.client)
