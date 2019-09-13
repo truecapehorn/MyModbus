@@ -84,7 +84,7 @@ class Master():
         :return:
         '''
         self.reg_type = 'holding'
-        massure = self.client.write_register(self.new_val, self.unit, unit=self.reg_add, )
+        massure = self.client.write_register(self.reg_add, self.new_val, unit=self.unit)
         if self._assercion(massure) == False:  # sprawdzenie czy nie ma errorow
             return print('Wartosc zapisana')
 
@@ -179,7 +179,7 @@ class Master():
     def read_bool(self, unit, reg_start, reg_lenght, reg_type='coil'):
         '''
         Odczytanie rejestrow binarnych.
-        :param unit: Adres urzadznia.
+        :param unit: Adres urzadzenia.
         :param reg_start: Rejestr początkowy.
         :param reg_lenght: Dlugosc zapytania.
         :param reg_type: Typ rejestru.
@@ -205,9 +205,13 @@ class Master():
                 dicData = self._data_to_dict(measure)  # zamiana na slownik i wydruk
                 return dicData
 
-    def write_register(self, reg_add, new_val, unit):
+    def write_register(self,unit, reg_add, new_val):
         '''
-        Nie przetestowane
+        Zapis jednego rejestru
+        :param unit: Adres urzadzenia.
+        :param reg_add: Adres rejetru do zapisu.
+        :param new_val: Nowa wartosc rejestru
+        :return: list(unit,reg_add,new_val]
         '''
         self.reg_add = reg_add
         self.new_val = new_val
@@ -216,7 +220,7 @@ class Master():
         self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
         self._write_single()
         self.client.close()
-        return print('\tNowa wartosc zapisana')
+        return self.unit,self.reg_add,self.new_val
 
     def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int', transp=False):
         '''
