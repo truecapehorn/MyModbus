@@ -223,7 +223,7 @@ class Master():
         self.client.close()
         return self.unit, self.reg_add, self.new_val
 
-    def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int', transp=False):
+    def read_register(self, unit, reg_start, reg_lenght, reg_type, data_type, transp=False):
         '''
 
         :param unit: Adres urzadznia.
