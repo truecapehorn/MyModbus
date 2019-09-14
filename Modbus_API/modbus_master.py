@@ -6,6 +6,7 @@ from pymodbus.client.sync import ModbusSerialClient as SerialClient
 import time
 import numpy as np
 
+
 # import logging
 # logging.basicConfig()
 # log = logging.getLogger()
@@ -28,7 +29,7 @@ class TCP_Client():
 class RTU_Client():
     ''' Obsłoga Modbus RTU'''
 
-    def __init__(self, speed, rs_port, method='rtu', stopbits=1, parity='N', bytesize=8, timeout=1, ):
+    def __init__(self, method, rs_port, speed, stopbits, parity, bytesize, timeout):
         self.method = method
         self.rs_port = rs_port
         self.speed = speed
@@ -205,7 +206,7 @@ class Master():
                 dicData = self._data_to_dict(measure)  # zamiana na slownik i wydruk
                 return dicData
 
-    def write_register(self,unit, reg_add, new_val):
+    def write_register(self, unit, reg_add, new_val):
         '''
         Zapis jednego rejestru
         :param unit: Adres urzadzenia.
@@ -220,7 +221,7 @@ class Master():
         self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
         self._write_single()
         self.client.close()
-        return self.unit,self.reg_add,self.new_val
+        return self.unit, self.reg_add, self.new_val
 
     def read_register(self, unit, reg_start, reg_lenght, reg_type='holding', data_type='int', transp=False):
         '''
@@ -259,8 +260,8 @@ class Master():
 if __name__ == '__main__':
 
     staski = TCP_Client('37.26.192.248', 502)
-    print("host:",staski.client.host)
-    print("time out:",staski.client.timeout)
+    print("host:", staski.client.host)
+    print("time out:", staski.client.timeout)
 
     conn = Master(staski.client)
     try:
@@ -268,7 +269,6 @@ if __name__ == '__main__':
         print(reg)
     except Exception as e:
         print(e)
-
 
     staski = TCP_Client('37.26.192.248', 502)
     conn = Master(staski.client)
@@ -281,16 +281,12 @@ if __name__ == '__main__':
         print(e)
         pass
 
-
     try:
         for k, v in coil['Data'].items():
             if v == True:
                 print(k, v)
     except Exception:
         pass
-
-
-
 
     sma = TCP_Client('192.168.0.240', 502)
     sma_conn = Master(sma.client)
