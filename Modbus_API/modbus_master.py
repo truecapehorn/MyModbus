@@ -3,7 +3,7 @@
 
 from pymodbus.client.sync import ModbusTcpClient as TcpClient
 from pymodbus.client.sync import ModbusSerialClient as SerialClient
-import time
+import time, pendulum
 import numpy as np
 
 
@@ -172,8 +172,20 @@ class Master():
             dic_val = {str(nr + self.reg_start): v for nr, v in enumerate(data)}
         else:
             dic_val = {str(nr + self.reg_start): v for nr, v in enumerate(data[::2])}  # 0,2,4,6
-        return_dict = {'Device': self.unit, 'Reg_type': self.reg_type, 'Data_type': self.data_type, 'Data': dic_val}
+        return_dict = {'Device': self.unit, 'Reg_type': self.reg_type,
+                       'Data_type': self.data_type, 'Time': self.d_now,
+                       'Data': dic_val}
         return return_dict
+
+    def date_now(self):
+        '''
+        Pobranie czasu.
+        :return: list(timestamp,string)
+        '''
+        _now = pendulum.now()
+        self.timestamp = _now.timestamp()
+        self.time_string = _now.to_datetime_string()
+        return self.timestamp, self.time_string
 
     # ------------------------------------------------------------------------------------------------------------------
     # metody uruchomieniowe
@@ -191,6 +203,7 @@ class Master():
         self.reg_lenght = reg_lenght
         self.reg_type = reg_type
         self.data_type = 'bool'
+        self.d_now = self.date_now()
 
         self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
         if self.reg_type == 'coil':
@@ -212,11 +225,12 @@ class Master():
         :param unit: Adres urzadzenia.
         :param reg_add: Adres rejetru do zapisu.
         :param new_val: Nowa wartosc rejestru
-        :return: list(unit,reg_add,new_val]
+        :return: list(unit,reg_add,new_val)
         '''
         self.reg_add = reg_add
         self.new_val = new_val
         self.unit = unit
+        self.d_now = self.date_now()
 
         self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
         self._write_single()
@@ -240,6 +254,8 @@ class Master():
         self.reg_type = reg_type
         self.data_type = data_type
         self.transp = transp
+        self.d_now = self.date_now()
+
         self.client.connect()  # TO CHYBA POTRZEBNE JEZELI ZAMYCKAM SESJE PRZY KAZDYM KONCU POMIARU
         time.sleep(0.0)
         if self.reg_type == 'holding':

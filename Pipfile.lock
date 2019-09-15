@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "7a2ccf87aad5b8a616affc82d49da3d1b5bda91c6f26d0858985ae4764ca0b5b"
+            "sha256": "2f04c2c30d0bd3911c0f7a7ba32c603f63b799bd000d58aac8d0aa0403575161"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -59,6 +59,18 @@
             "index": "pypi",
             "version": "==1.17.2"
         },
+        "pendulum": {
+            "hashes": [
+                "sha256:1cde6e3c6310fb882c98f373795f807cb2bd6af01f34d2857e6e283b5ee91e09",
+                "sha256:485aef2089defee88607d37d5bc238934d0b90993d7bf9ceb36e481af41e9c66",
+                "sha256:57801754e05f30e8a7e4d24734c9fad82c6c3ec489151555f0fc66bb32ba6d6d",
+                "sha256:7ee344bc87cb425b04717b90d14ffde14c1dd64eaa73060b3772edcf57f3e866",
+                "sha256:c460f4d8dc41ec3c4377ac1807678cd72fe5e973cc2943c104ffdeaac32dacb7",
+                "sha256:d3078e007315a959989c41cee5cfd63cfeeca21dd3d8295f4bc24199489e9b6c"
+            ],
+            "index": "pypi",
+            "version": "==2.0.5"
+        },
         "pymodbus": {
             "hashes": [
                 "sha256:aa2ef595c8b2e4d437b18370e4b9c1ec13bd5e00aa17c8f533d43dc01a3b6139",
@@ -73,6 +85,20 @@
                 "sha256:e0770fadba80c31013896c7e6ef703f72e7834965954a78e71a3049488d4d7d8"
             ],
             "version": "==3.4"
+        },
+        "python-dateutil": {
+            "hashes": [
+                "sha256:7e6584c74aeed623791615e26efd690f29817a27c73085b78e4bad02493df2fb",
+                "sha256:c89805f6f4d64db21ed966fda138f8a5ed7a4fdbc1a8ee329ce1b74e3c74da9e"
+            ],
+            "version": "==2.8.0"
+        },
+        "pytzdata": {
+            "hashes": [
+                "sha256:c0c8316eaf6c25ba45816390a1a45c39790767069b3275c5f7de3ddf773eb810",
+                "sha256:e8a91952afd853642a49f0713caac3e15a5306855ff4a47af4ddec5b7dd23a09"
+            ],
+            "version": "==2019.2"
         },
         "requests": {
             "hashes": [
