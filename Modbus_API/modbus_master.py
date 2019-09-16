@@ -275,45 +275,64 @@ class Master():
 
 if __name__ == '__main__':
 
-    staski = TCP_Client('37.26.192.248', 502)
-    print("host:", staski.client.host)
-    print("time out:", staski.client.timeout)
-
-    conn = Master(staski.client)
+    my_server = TCP_Client('127.0.0.1', 5023)
+    print("host:", my_server.client.host)
+    print("time out:", my_server.client.timeout)
+    my_server_conn = Master(my_server.client)
     try:
-        reg = conn.read_register(1, 101, 10, reg_type='holding', data_type='int')
-        print(reg)
+        for i in range(1,20):
+            reg = my_server_conn.read_register(i, 133, 120, reg_type='holding', data_type='int')
+            print(reg)
     except Exception as e:
         print(e)
 
-    staski = TCP_Client('37.26.192.248', 502)
-    conn = Master(staski.client)
-    try:
-        coil = conn.read_bool(1, 0, 250, reg_type='coil')
-        input_reg = conn.read_bool(1, 1000, 250, reg_type='coil')
-        print(coil)
-        print(input_reg)
-    except Exception as e:
-        print(e)
-        pass
 
-    try:
-        for k, v in coil['Data'].items():
-            if v == True:
-                print(k, v)
-    except Exception:
-        pass
 
-    sma = TCP_Client('192.168.0.240', 502)
-    sma_conn = Master(sma.client)
-    try:
-        reg_for_check = [30201, 30233, 30531, 30775, 30795, 30803, 30805, 30813, 30837, 30839, 30769, 30771, 30773,
-                         30957, 30959, 30961, 30537, 30953, 40212, 40915]
-        for i in reg_for_check:
-            reg_sma = sma_conn.read_register(3, i, 2, reg_type='holding', data_type='int32', transp=True)
-            print(reg_sma)
-    except Exception as e:
-        print(e)
+
+
+
+
+
+
+    # staski = TCP_Client('37.26.192.248', 502)
+    # print("host:", staski.client.host)
+    # print("time out:", staski.client.timeout)
+    #
+    # conn = Master(staski.client)
+    # try:
+    #     reg = conn.read_register(1, 101, 10, reg_type='holding', data_type='int')
+    #     print(reg)
+    # except Exception as e:
+    #     print(e)
+    #
+    # staski = TCP_Client('37.26.192.248', 502)
+    # conn = Master(staski.client)
+    # try:
+    #     coil = conn.read_bool(1, 0, 250, reg_type='coil')
+    #     input_reg = conn.read_bool(1, 1000, 250, reg_type='coil')
+    #     print(coil)
+    #     print(input_reg)
+    # except Exception as e:
+    #     print(e)
+    #     pass
+    #
+    # try:
+    #     for k, v in coil['Data'].items():
+    #         if v == True:
+    #             print(k, v)
+    # except Exception:
+    #     pass
+
+    # sma = TCP_Client('192.168.0.240', 502)
+    # sma_conn = Master(sma.client)
+    # try:
+    #     reg_for_check = [30201, 30233, 30531, 30775, 30795, 30803, 30805, 30813, 30837, 30839, 30769, 30771, 30773,
+    #                      30957, 30959, 30961, 30537, 30953, 40212, 40915]
+    #     for i in reg_for_check:
+    #         reg_sma = sma_conn.read_register(3, i, 2, reg_type='holding', data_type='int32', transp=True)
+    #         print(reg_sma)
+    # except Exception as e:
+    #     print(e)
     #
     # cofowent = TCP_Client('192.168.0.30', 502)
     # cofowent_conn = Master(cofowent.client)
