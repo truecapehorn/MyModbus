@@ -275,16 +275,21 @@ class Master():
 
 if __name__ == '__main__':
 
-    my_server = TCP_Client('127.0.0.1', 5023)
+    my_server = TCP_Client('127.0.0.1', 5027)
     print("host:", my_server.client.host)
     print("time out:", my_server.client.timeout)
     my_server_conn = Master(my_server.client)
+    # my_server_conn.write_register(1, 2, 10)
     try:
-        for i in range(1,20):
-            reg = my_server_conn.read_register(i, 133, 120, reg_type='holding', data_type='int')
+        for i in range(1,5):
+            reg = my_server_conn.read_register(i, 15, 20, reg_type='holding', data_type='int')
+            inp  = my_server_conn.read_register(i, 15, 20, reg_type='input', data_type='int')
             print(reg)
+            print(inp)
     except Exception as e:
         print(e)
+
+
 
 
 
